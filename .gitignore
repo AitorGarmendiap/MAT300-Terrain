@@ -1,0 +1,32 @@
+*build/
+bin/
+obj/
+gltf/
+decals/
+*.vscode/
+*.valgrind*
+
+# Binaries & Output
+*.ini
+*.o
+*.gch
+*.exe
+*.suo
+*.tlog
+*.idb
+*.pdb
+*.db
+*.stackdump
+*vgcore.*
+*.user
+*_out
+
+*student*
+
+# Hidden files
+**/.*
+!.gitignore
+!.github
+!.clang-tidy
+# Temporary files
+**.*~
