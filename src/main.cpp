@@ -1,17 +1,15 @@
-#include "terrain.hpp"
+#include "app.hpp"
 
 #include <iostream>
 #include <stdexcept>
 
 int main(int argc, char** argv)
 {
-
-
-    AFL::Terrain app;
+    mat300_terrain::App app;
 
     try
     {
-        //app.Run();
+        app.Run();
     }
     catch (const std::exception& e)
     {

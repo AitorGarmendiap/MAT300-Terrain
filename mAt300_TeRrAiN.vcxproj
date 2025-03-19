@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\includes;.\includes\imgui;.\includes\imgui\backends;.\includes\imgui\misc\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;.\include\imgui;.\include\imgui\backends;.\include\imgui\misc\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,7 +129,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\includes;.\includes\imgui;.\includes\imgui\backends;.\includes\imgui\misc\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;.\include\imgui;.\include\imgui\backends;.\include\imgui\misc\cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,12 +141,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\app.hpp" />
     <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\terrain.hpp" />
+    <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\terrain.cpp" />
+    <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
