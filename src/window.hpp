@@ -25,8 +25,6 @@ namespace mat300_terrain {
         void Init();
         void ShutDown();
 
-        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
-
         GLFWwindow* mWindow = nullptr;
 
         const char* mName = "mat300 terrain";

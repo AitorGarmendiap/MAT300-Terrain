@@ -22,7 +22,7 @@ namespace mat300_terrain {
     }
     void Window::Init()
     {
-        // Initializes the GLFW library
+        // Initialize GLFW library
         if (glfwInit() == GLFW_FALSE)
         {
             throw std::runtime_error("Failed to initialize GLFW");
@@ -39,14 +39,12 @@ namespace mat300_terrain {
 
         if (mWindow == nullptr)
         {
-            // Terminates the GLFW library
             glfwTerminate();
             throw std::runtime_error("Failed to create GLFW window");
         }
 
         glfwMakeContextCurrent(mWindow);
 
-        // Initialize Glad (in the current context)
         if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0)
         {
             throw std::runtime_error("Could not load GLAD");
@@ -59,7 +57,6 @@ namespace mat300_terrain {
 
         EnableGlCallbacks();
 
-        // To have valid size from the beginning
         glfwGetWindowSize(mWindow, &mWidth, &mHeight);
     }
 
@@ -82,15 +79,6 @@ namespace mat300_terrain {
         glfwTerminate();
     }
 
-
-    void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        Window* resizedWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-
-        // Update parameters with resized values
-        resizedWindow->mWidth = width;
-        resizedWindow->mHeight = height;
-    }
 
     /*
      * OpenGL callback for debugging. Code from https://learnopengl.com/In-Practice/Debugging
