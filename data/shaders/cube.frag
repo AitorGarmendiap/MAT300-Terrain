@@ -52,5 +52,5 @@ void main()
     
     vec3 finalColor = (amb + dif) * uniform_Color + spec;
 
-    frag_color = vec4(finalColor, 0.0, 1.0);
+    frag_color = vec4(finalColor, 1.0);
 }
