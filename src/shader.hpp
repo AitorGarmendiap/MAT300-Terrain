@@ -13,16 +13,16 @@ namespace mat300_terrain {
         Shader();
         ~Shader();
 
-        bool CreateShader(GLenum shaderType, std::string name);
-        bool CompileShader();
+        void CreateShader(GLenum shaderType, std::string name);
+        void CompileShader();
 
         GLuint GetID();
 
     private:
 
-        std::string mName;
-        GLenum  mType;
-        GLuint  mID;
+        std::string mName = "";
+        GLenum  mType = 0;
+        GLuint  mShaderID = 0;
     };
 
 

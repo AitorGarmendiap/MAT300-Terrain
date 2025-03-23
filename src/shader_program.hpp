@@ -10,6 +10,7 @@ namespace mat300_terrain {
         ShaderProgram();
         ~ShaderProgram();
 
+        void CreateProgram();
         void AttachVertShader(Shader& shader);
         void AttachFragShader(Shader& shader);
         void LinkProgram();
@@ -18,7 +19,7 @@ namespace mat300_terrain {
         GLuint GetHandle();
 
     private:
-        GLuint  mID;         // program handle
+        GLuint  mHandleID = 0;            // program handle
         Shader* mVertShader = nullptr;
         Shader* mFragShader = nullptr;
     };
