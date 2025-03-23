@@ -64,44 +64,45 @@ namespace mat300_terrain {
         {
             glm::vec3 position;
             glm::vec3 normal;
+            glm::vec2 uv;
         };
         Vertex cubeVertices[] =
         {
             // Front face
-            {{+0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Top Right
-            {{+0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Bottom Right
-            {{-0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Top Left
-            {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Bottom Left
+            {{+0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // Top Right
+            {{+0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Bottom Right
+            {{-0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}, // Top Left
+            {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // Bottom Left
 
             // Back face
-            {{+0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Top Right
-            {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Bottom Right
-            {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Top Left
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Bottom Left
+            {{+0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}}, // Top Right
+            {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}}, // Bottom Right
+            {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}}, // Top Left
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}}, // Bottom Left
 
             // Right face
-            {{+0.5f, +0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}}, // Top Front
-            {{+0.5f, -0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}}, // Bottom Front
-            {{+0.5f, +0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // Top Back
-            {{+0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // Bottom Back
+            {{+0.5f, +0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // Top Front
+            {{+0.5f, -0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom Front
+            {{+0.5f, +0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top Back
+            {{+0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // Bottom Back
 
             // Left face
-            {{-0.5f, +0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}}, // Top Front
-            {{-0.5f, -0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}}, // Bottom Front
-            {{-0.5f, +0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}}, // Top Back
-            {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}}, // Bottom Back
+            {{-0.5f, +0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}, // Top Front
+            {{-0.5f, -0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, // Bottom Front
+            {{-0.5f, +0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // Top Back
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // Bottom Back
 
             // Top face
-            {{+0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}}, // Front Right
-            {{+0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // Back Right
-            {{-0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}}, // Front Left
-            {{-0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // Back Left
+            {{+0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}, // Front Right
+            {{+0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // Back Right
+            {{-0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // Front Left
+            {{-0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}, // Back Left
 
             // Bottom face
-            {{+0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}}, // Front Right
-            {{+0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}}, // Back Right
-            {{-0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}}, // Front Left
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}}, // Back Left
+            {{+0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // Front Right
+            {{+0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}, // Back Right
+            {{-0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // Front Left
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}}, // Back Left
         };
 
         GLuint cubeIndices[] =
@@ -137,6 +138,9 @@ namespace mat300_terrain {
 
         glEnableVertexAttribArray(1); // Normal
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+        glEnableVertexAttribArray(2); // Normal
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
         // 7. Unbind to prevent accidental changes
         glBindBuffer(GL_ARRAY_BUFFER, 0);

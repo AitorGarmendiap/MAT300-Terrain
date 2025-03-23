@@ -1,7 +1,8 @@
 #version 460
 
 in vec3 frag_pos;
-in vec3 frag_Normal;
+in vec3 frag_normal;
+in vec2 frag_uv;
 
 // Light properties
 uniform vec3 lightPos;
@@ -19,7 +20,7 @@ out vec4 frag_color;
 
 void pointlight(out vec3 amb, out vec3 dif, out vec3 spec ) 
 {
-    vec3 N = normalize(frag_Normal);
+    vec3 N = normalize(frag_normal);
     vec3 L = normalize( lightPos - frag_pos );
     vec3 V = normalize(viewPos - frag_pos);
     vec3 R = reflect( -L, N );
@@ -51,5 +52,5 @@ void main()
     
     vec3 finalColor = (amb + dif) * uniform_Color + spec;
 
-    frag_color = vec4(finalColor, 1.0);
+    frag_color = vec4(finalColor, 0.0, 1.0);
 }
