@@ -20,6 +20,10 @@ namespace mat300_terrain {
         mSimpleShaderProg.LinkProgram();
 
         CreateCube();
+
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glCullFace(GL_BACK);
     }
 
     void Renderer::Update(float dt, const Camera& cam, const std::vector<Patches>& patches)
@@ -35,11 +39,12 @@ namespace mat300_terrain {
 
         float scale = 5;
 
+        mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
         DrawCube(glm::vec3(0.0, 0.0, -5.0), 5);
 
         for (const auto& patch : patches)
         {
-            mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 0.0, 0.0));
+            mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
 
             for (const auto& cPoint : patch.controlPoints)
             {
@@ -62,37 +67,60 @@ namespace mat300_terrain {
         };
         Vertex cubeVertices[] =
         {
-            // 3D position  // Color
+            // Front face
+            {{+0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Top Right
+            {{+0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Bottom Right
+            {{-0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Top Left
+            {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Bottom Left
 
-        {{+0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Frot Top right
-        {{+0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Frot Bottom right
-        {{-0.5f, +0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Frot Top Left
-        {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f, 1.0f}}, // Frot Bottom Left
+            // Back face
+            {{+0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Top Right
+            {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Bottom Right
+            {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Top Left
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Bottom Left
 
-        {{+0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},// Back Top right
-        {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},// Back Bottom right
-        {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},// Back Top Left
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},// Back Bottom Left
+            // Right face
+            {{+0.5f, +0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}}, // Top Front
+            {{+0.5f, -0.5f, +0.5f}, {1.0f, 0.0f, 0.0f}}, // Bottom Front
+            {{+0.5f, +0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // Top Back
+            {{+0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // Bottom Back
+
+            // Left face
+            {{-0.5f, +0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}}, // Top Front
+            {{-0.5f, -0.5f, +0.5f}, {-1.0f, 0.0f, 0.0f}}, // Bottom Front
+            {{-0.5f, +0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}}, // Top Back
+            {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}}, // Bottom Back
+
+            // Top face
+            {{+0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}}, // Front Right
+            {{+0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // Back Right
+            {{-0.5f, +0.5f, +0.5f}, {0.0f, 1.0f, 0.0f}}, // Front Left
+            {{-0.5f, +0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // Back Left
+
+            // Bottom face
+            {{+0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}}, // Front Right
+            {{+0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}}, // Back Right
+            {{-0.5f, -0.5f, +0.5f}, {0.0f, -1.0f, 0.0f}}, // Front Left
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}}, // Back Left
         };
 
         GLuint cubeIndices[] =
         {
-             0, 2, 3, 0, 3, 1,  //Front
-             2, 6, 7, 2, 7, 3,
-             6, 4, 5, 6, 5, 7,
-             4, 0, 1, 4, 1, 5,
-             0, 4, 6, 0, 6, 2,
-             1, 7, 5, 1, 3, 7,
+            
+            0, 2, 3, 0, 3, 1,       // Front
+            4, 5, 7, 4, 7, 6,       // Back
+            8, 9, 11, 8, 11, 10,    // Right
+            13, 12, 15, 12, 14, 15, // Left
+            16, 17, 19, 16, 19, 18, // Top
+            21, 20, 23, 20, 22, 23, // Bottom
         };
         GLuint cubeIndexCount = sizeof(cubeIndices) / sizeof(GLuint);
 
 
-        // 2. Generate buffers
         glGenVertexArrays(1, &mVAO);
         glGenBuffers(1, &mVBO);
         glGenBuffers(1, &mEBO);
 
-        // 3. Bind VAO (store attribute state)
         glBindVertexArray(mVAO);
 
         // 4. Bind and upload vertex data

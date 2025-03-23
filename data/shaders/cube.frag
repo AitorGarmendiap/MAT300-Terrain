@@ -49,7 +49,7 @@ void main()
     
     pointlight(amb, dif, spec);
     
-    vec3 finalColor = amb + dif + spec;
+    vec3 finalColor = (amb + dif) * uniform_Color + spec;
 
     frag_color = vec4(finalColor, 1.0);
 }
