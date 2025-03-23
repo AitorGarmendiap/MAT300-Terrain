@@ -40,20 +40,27 @@ namespace mat300_terrain {
         float scale = 5;
 
         mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
-        DrawCube(glm::vec3(0.0, 0.0, -5.0), 5);
+        //DrawCube(glm::vec3(0.0, 0.0, -5.0), 5);
 
         for (const auto& patch : patches)
         {
             mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
-
+           
             for (const auto& cPoint : patch.controlPoints)
             {
-                float scale = 5;
-
+                float scale = 0.1;
+           
                 DrawCube(cPoint, scale);
+            }
 
+            for (const auto& meshPoint : patch.mesh)
+            {
+                float scale = 0.01;
+
+                DrawCube(meshPoint, scale);
             }
         }
+
         mSimpleShaderProg.Unuse();
     }
 

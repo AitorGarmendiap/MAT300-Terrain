@@ -1,4 +1,5 @@
 #include "terrain.hpp"
+#include "bezierMesh.hpp"
 
 namespace mat300_terrain {
 
@@ -9,6 +10,18 @@ namespace mat300_terrain {
 
     std::vector<Patches> Terrain::GetPatches()
     {
+        Patches patch;
+
+        patch.controlPoints = { {0,0,0}, {0,1,0}, {0,2,0}, {0,3,0},
+                                {1,0,0}, {1,1,1}, {1,2,1}, {1,3,0},
+                                {2,0,0}, {2,1,2}, {2,2,2}, {2,3,0},
+                                {3,0,0}, {3,1,0}, {3,2,0}, {3,3,0} };
+
+        BezierMesh bezier;
+        patch.mesh = bezier.CalculateBezierMesh();
+
+        mPatches.push_back(patch);
+
         return mPatches;
     }
 

@@ -4,6 +4,7 @@
 
 class BezierMesh
 {
+public:
 	std::vector<glm::vec3> CalculateBezierMesh(/*Patch patch*/);
 
 private:
