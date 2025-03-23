@@ -7,4 +7,9 @@ namespace mat300_terrain {
 
     }
 
+    std::vector<Patches> Terrain::GetPatches()
+    {
+        return mPatches;
+    }
+
 }

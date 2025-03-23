@@ -15,8 +15,11 @@ namespace mat300_terrain{
         void SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{ 0.0f, 1.0f, 0.0 });
         void SetViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{ 0.0f, 1.0f, 0.0 });
 
+        void Update();
+
         const glm::mat4& GetProjection() const { return mProjectionMatrix; }
         const glm::mat4& GetView() const { return mViewMatrix; }
+        const glm::vec3 GetPosition() const { return mTransform.translation; }
 
         Transform mTransform;
 

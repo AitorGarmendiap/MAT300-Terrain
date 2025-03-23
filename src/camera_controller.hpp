@@ -10,7 +10,7 @@ namespace mat300_terrain {
     {
     public:
 
-        void HandleInput(GLFWwindow* window, float dt, Camera& cam);
+        void HandleInput(float dt, GLFWwindow* window, Camera& cam);
 
     };
 

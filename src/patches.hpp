@@ -5,8 +5,6 @@ namespace mat300_terrain {
 
     struct Patches
     {
-    public:
-    private:
         std::vector<glm::vec3> controlPoints;
 
         std::vector<glm::vec3> mesh;

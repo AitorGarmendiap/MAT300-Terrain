@@ -24,6 +24,11 @@ namespace mat300_terrain {
         SetViewDirection(position, target - position, up);
     }
 
+    void Camera::Update()
+    {
+        SetViewDirection(mTransform.translation, mForward);
+    }
+
 
 } // namespace mat300_terrain
 

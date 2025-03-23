@@ -1,6 +1,8 @@
 #pragma once
 
 #include "window.hpp"
+#include "camera.hpp"
+#include "camera_controller.hpp"
 #include "renderer.hpp"
 #include "terrain.hpp"
 
@@ -22,7 +24,11 @@ namespace mat300_terrain {
         static constexpr int HEIGHT = 720;
 
         Window mWindow{ WIDTH, HEIGHT, "mat300 terrain" };
-        Renderer mRenderer;
+
+        Camera mCamera;
+        CameraControler mCamController{};
+
+        Renderer mRenderer{};
         Terrain mTerrain;
     };
 }
