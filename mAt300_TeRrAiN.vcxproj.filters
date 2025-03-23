@@ -48,6 +48,9 @@
     <ClInclude Include="src\patches.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\BezierMesh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\terrain.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BezierMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
