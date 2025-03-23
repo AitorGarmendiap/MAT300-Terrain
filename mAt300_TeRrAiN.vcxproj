@@ -144,6 +144,8 @@
     <ClInclude Include="src\app.hpp" />
     <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\camera_controller.hpp" />
+    <ClInclude Include="src\patches.hpp" />
+    <ClInclude Include="src\renderer.hpp" />
     <ClInclude Include="src\shader.hpp" />
     <ClInclude Include="src\shader_program.hpp" />
     <ClInclude Include="src\terrain.hpp" />
@@ -156,6 +158,7 @@
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\camera_controller.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\shader_program.cpp" />
     <ClCompile Include="src\terrain.cpp" />

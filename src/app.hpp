@@ -1,6 +1,8 @@
 #pragma once
 
 #include "window.hpp"
+#include "renderer.hpp"
+#include "terrain.hpp"
 
 namespace mat300_terrain {
     class App
@@ -11,6 +13,7 @@ namespace mat300_terrain {
 
         App(const App&) = delete;
         App& operator=(const App&) = delete;
+
         void Run();
 
     private:
@@ -18,6 +21,8 @@ namespace mat300_terrain {
         static constexpr int WIDTH = 1280;
         static constexpr int HEIGHT = 720;
 
-        Window mWindow{ WIDTH, HEIGHT, "AFL cs562" };
+        Window mWindow{ WIDTH, HEIGHT, "mat300 terrain" };
+        Renderer mRenderer;
+        Terrain mTerrain;
     };
 }

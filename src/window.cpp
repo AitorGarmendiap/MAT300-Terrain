@@ -68,7 +68,7 @@ namespace mat300_terrain {
 
     void Window::Update()
     {
-        //glfwPollEvents();
+        glfwPollEvents();
         glfwGetWindowSize(mWindow, &mWidth, &mHeight);
         glfwSwapBuffers(mWindow);
     }

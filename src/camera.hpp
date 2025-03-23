@@ -20,7 +20,7 @@ namespace mat300_terrain{
 
         Transform mTransform;
 
-        glm::vec3 mForward = glm::vec3(0.0f, 0.0f, 1.0f);
+        glm::vec3 mForward = glm::vec3(0.0f, 0.0f, -1.0f);
         glm::vec3 mUp = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 mRight = glm::normalize(glm::cross(mForward, mUp));
 
