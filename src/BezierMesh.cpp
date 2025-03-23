@@ -1,0 +1,55 @@
+#include "BezierMesh.h"
+
+std::vector<glm::vec3> BezierMesh::CalculateBezierMesh()
+{
+	std::vector<std::vector<glm::vec3>> controlPoints = { {},
+														  {},
+														  {},
+														  {} };
+
+	std::vector<glm::vec3> mesh;
+
+	float deltaT = 0.1;
+	float steps = 1.0f / deltaT;
+
+	for (unsigned i = 0; i < steps; i++)
+	{
+		float tu = i * deltaT;
+
+		for (unsigned j = 0; j < steps; j++)
+		{
+			float tv = j * deltaT;
+
+			glm::vec3 pointInMesh = GetMeshPointAt(tu, tv, controlPoints);
+
+			mesh.push_back(pointInMesh);
+
+		}
+	}
+
+	return mesh;
+}
+
+glm::vec3 BezierMesh::GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
+{
+	glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			float Bu = Bernstein(i, u);
+			float Bv = Bernstein(j, v);
+
+			newPoint += controlPoints[i][j] * Bv * Bu;
+		}
+	}
+	return newPoint;
+}
+
+float BezierMesh::Bernstein(int i, float t)
+{
+	int n = 3;
+
+	//calculate bernstein with precomputed binomial coeffs
+	return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+}
