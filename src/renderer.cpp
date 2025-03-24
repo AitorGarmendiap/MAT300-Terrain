@@ -4,7 +4,6 @@ namespace mat300_terrain {
     
     Renderer::Renderer()
     {
-
         mSimpleShaderProg.CreateProgram();
 
         // shaders for drawing shapes

@@ -3,6 +3,12 @@
 
 namespace mat300_terrain {
 
+    // Create Patches with the height map 
+    void Terrain::Create(int patchCount, const char* heightname)
+    {
+
+    }
+
     void Terrain::Update(float dt)
     {
 

@@ -8,9 +8,7 @@ namespace mat300_terrain {
     class Terrain
     {
     public:
-        Terrain(){}
-        ~Terrain(){}
-
+        void Create(int patchCount, const char* heightname);
         void Update(float dt);
 
         std::vector<Patch> GetPatches();
@@ -18,7 +16,7 @@ namespace mat300_terrain {
     private:
         std::vector<Patch> mPatches;
 
-        int mPatchCount;
+        int mPatchCount = 4;
     };
 
 }

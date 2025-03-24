@@ -48,8 +48,11 @@
     <ClInclude Include="src\patches.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\BezierMesh.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\bezierMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene_parser.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\BezierMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
