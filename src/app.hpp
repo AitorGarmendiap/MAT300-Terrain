@@ -10,7 +10,7 @@ namespace mat300_terrain {
     class App
     {
     public:
-        App(){}
+        App();
         ~App(){}
 
         App(const App&) = delete;
@@ -19,6 +19,11 @@ namespace mat300_terrain {
         void Run();
 
     private:
+
+        void CreateImgui();
+        void UpdateImgui(float dt);
+        void SelectPatch(float mouseX, float mouseY);
+        bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patches patch);
 
         static constexpr int WIDTH = 1280;
         static constexpr int HEIGHT = 720;

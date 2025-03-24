@@ -18,7 +18,7 @@ namespace mat300_terrain {
         moveSpeed = std::max(0.1f, moveSpeed);     // Prevent negative or zero move speed
     }
 
-    void CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam)
+    void CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam, void (*SelectPatch)(float, float))
     {
         glfwSetScrollCallback(window, ScrollCallback);
 
@@ -61,13 +61,18 @@ namespace mat300_terrain {
         // Cameras rotational movement
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-
             glm::dvec3 rightVec = glm::normalize(glm::cross(cam.mForward, { 0, 1, 0 }));
 
             glm::dvec2 cursorDelta = cursorPos - prevPos;
             cam.mForward = glm::vec3(glm::vec4(cam.mForward, 0) * glm::rotate(glm::radians(15.0f) * 0.01f * cursorDelta.y, rightVec));
             cam.mForward = glm::vec3(glm::vec4(cam.mForward, 0) * glm::rotate(glm::radians(15.0f) * 0.01f * cursorDelta.x, glm::dvec3(0, 1, 0)));
         }
+        // Select Patch or Control Point
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            SelectPatch(cursorPos.x, cursorPos.y);
+        }
+        
         prevPos = cursorPos;
     }
 
