@@ -19,11 +19,13 @@ namespace mat300_terrain {
 
         mSimpleShaderProg.LinkProgram();
 
+        CreateTriangleArray();
         CreateCube();
 
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
     }
 
     void Renderer::Update(float dt, const Camera& cam, const std::vector<Patch>& patches)
@@ -34,13 +36,8 @@ namespace mat300_terrain {
         mSimpleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
 
         mSimpleShaderProg.SetVec3("lightPos", glm::vec3(5.0f, 5.0f, 5.0f));
-        mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
+//        mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
         mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
-
-        float scale = 5;
-
-        mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
-        //DrawCube(glm::vec3(0.0, 0.0, -5.0), 5);
 
         for (const auto& patch : patches)
         {
@@ -55,12 +52,52 @@ namespace mat300_terrain {
                 }
             }
 
-            //DrawTriangles(patch.mesh);
+            for (const auto& meshPoint : patch.mesh)
+            {
+                float scale = 0.01;
+
+                DrawCube(meshPoint, scale);
+            }
+
+            DrawTriangles(TriangulateMesh(patch));
         }
 
         mSimpleShaderProg.Unuse();
     }
 
+    void Renderer::DrawCube(glm::vec3 pos, float scale)
+    {
+        glBindVertexArray(mVAO);
+
+        // Apply transformation
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+        model = glm::scale(model, glm::vec3(scale));
+
+        mSimpleShaderProg.SetMat4("uniform_Model", model);
+
+        // Draw cube
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
+
+    }
+    void Renderer::DrawTriangles(const std::vector<glm::vec3>& triangles)
+    {
+        if (triangles.empty())
+            return;
+
+        ReCreateTriangleArray(triangles);
+
+        glBindVertexArray(mVAOtr);
+
+        mSimpleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+
+        // Draw triangles
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+
+
+        glBindVertexArray(0);
+    }
 
     void Renderer::CreateTriangleArray()
     {
@@ -71,11 +108,11 @@ namespace mat300_terrain {
 
         // 4. Bind and upload vertex data
         glBindBuffer(GL_ARRAY_BUFFER, mVBOtr);
-        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);  // No data yet
 
         // 6. Define vertex attributes (position, color, texture, normal)
         glEnableVertexAttribArray(0); // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
         // 7. Unbind to prevent accidental changes
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -87,7 +124,7 @@ namespace mat300_terrain {
         glBindVertexArray(mVAOtr);
 
         glBindBuffer(GL_ARRAY_BUFFER, mVBOtr);
-        glBufferData(GL_ARRAY_BUFFER, triangles.size(), triangles.data(), GL_STATIC_DRAW); 
+        glBufferData(GL_ARRAY_BUFFER, triangles.size() * sizeof(glm::vec3), triangles.data(), GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
@@ -183,59 +220,30 @@ namespace mat300_terrain {
 
     }
 
-    void Renderer::DrawCube(glm::vec3 pos, float scale)
-    {
-        glBindVertexArray(mVAO);
-
-        // Apply transformation
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-        model = glm::scale(model, glm::vec3(scale));
-
-        mSimpleShaderProg.SetMat4("uniform_Model", model);
-
-        // Draw cube
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
-
-    }
-    void Renderer::DrawTriangles(const std::vector<glm::vec3>& triangles)
-    {
-        ReCreateTriangleArray(triangles);
-
-        glBindVertexArray(mVAOtr);
-
-        mSimpleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
-
-        // Draw triangles
-        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
-
-        glBindVertexArray(0);
-    }
 
     std::vector<glm::vec3> Renderer::TriangulateMesh(const Patch& patch)
     {
         std::vector<glm::vec3> triangulatedMesh;
 
-        int divisions = patch.GetDivisionCount() - 1;
+        int divisions = patch.GetStepCount();
 
         for (int x = 0; x < divisions; x++)
         {
-            for (int y = 1 ;y < divisions + 1; y++)
+            for (int y = 0; y < divisions; y++)
             {
-                glm::vec3 topRigth = patch.mesh[y* (divisions+1) + (x + 1)];
-                glm::vec3 topLeft = patch.mesh[y * (divisions + 1) + (x)];
-                glm::vec3 botRigth = patch.mesh[(y -1)* (divisions + 1) + (x + 1)];
-                glm::vec3 botLeft = patch.mesh[(y -1)* (divisions + 1) + (x + 1)];
+                glm::vec3 botLeft = patch.mesh[y * (divisions + 1) + (x)];
+                glm::vec3 botRigth = patch.mesh[y * (divisions + 1) + (x + 1)];
+                glm::vec3 topLeft = patch.mesh[(y + 1)* (divisions + 1) + (x)];
+                glm::vec3 topRigth = patch.mesh[(y + 1)* (divisions + 1) + (x + 1)];
 
                 //triangulate
-                triangulatedMesh.push_back(topLeft);
                 triangulatedMesh.push_back(topRigth);
                 triangulatedMesh.push_back(botRigth);
+                triangulatedMesh.push_back(topLeft);
 
-                triangulatedMesh.push_back(botRigth);
                 triangulatedMesh.push_back(botLeft);
                 triangulatedMesh.push_back(topLeft);
+                triangulatedMesh.push_back(botRigth);
             }
 
         }

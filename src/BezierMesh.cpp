@@ -13,16 +13,15 @@ namespace mat300_terrain {
 	{
 		std::vector<glm::vec3> mesh;
 
-		float deltaT = 0.1;
-		float steps = 1.0f / deltaT;
+        float steps = patch.GetStepCount();
 
-		for (unsigned i = 0; i < steps + 1; i++)
+		for (unsigned i = 0; i <= steps; i++)
 		{
-			float tu = i * deltaT;
+			float tu = i * patch.t;
 
-			for (unsigned j = 0; j < steps + 1; j++)
+			for (unsigned j = 0; j <= steps; j++)
 			{
-				float tv = j * deltaT;
+				float tv = j * patch.t;
 
 				glm::vec3 pointInMesh = GetMeshPointAt(tu, tv, patch.controlPoints);
 
@@ -36,6 +35,7 @@ namespace mat300_terrain {
 	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
 	{
 		glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
+
 		for (int i = 0; i < 4; i++)
 		{
 			for (int j = 0; j < 4; j++)
