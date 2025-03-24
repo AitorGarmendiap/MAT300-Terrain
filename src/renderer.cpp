@@ -55,17 +55,42 @@ namespace mat300_terrain {
                 }
             }
 
-            for (const auto& meshPoint : patch.mesh)
-            {
-                float scale = 0.01;
-
-                DrawCube(meshPoint, scale);
-            }
+            //DrawTriangles(patch.mesh);
         }
 
         mSimpleShaderProg.Unuse();
     }
 
+
+    void Renderer::CreateTriangleArray()
+    {
+        glGenVertexArrays(1, &mVAOtr);
+        glGenBuffers(1, &mVBOtr);
+
+        glBindVertexArray(mVAOtr);
+
+        // 4. Bind and upload vertex data
+        glBindBuffer(GL_ARRAY_BUFFER, mVBOtr);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+
+        // 6. Define vertex attributes (position, color, texture, normal)
+        glEnableVertexAttribArray(0); // Position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        // 7. Unbind to prevent accidental changes
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
+    void Renderer::ReCreateTriangleArray(const std::vector<glm::vec3>& triangles)
+    {
+        glBindVertexArray(mVAOtr);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mVBOtr);
+        glBufferData(GL_ARRAY_BUFFER, triangles.size(), triangles.data(), GL_STATIC_DRAW); 
+
+        glBindVertexArray(0);
+    }
 
     void Renderer::CreateCube()
     {
@@ -173,5 +198,18 @@ namespace mat300_terrain {
 
         glBindVertexArray(0);
 
+    }
+    void Renderer::DrawTriangles(const std::vector<glm::vec3>& triangles)
+    {
+        ReCreateTriangleArray(triangles);
+
+        glBindVertexArray(mVAOtr);
+
+        mSimpleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+
+        // Draw triangles
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+
+        glBindVertexArray(0);
     }
 }
