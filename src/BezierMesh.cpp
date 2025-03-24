@@ -12,11 +12,11 @@ std::vector<glm::vec3> BezierMesh::CalculateBezierMesh()
 	float deltaT = 0.1;
 	float steps = 1.0f / deltaT;
 
-	for (unsigned i = 0; i < steps; i++)
+	for (unsigned i = 0; i < steps+1; i++)
 	{
 		float tu = i * deltaT;
 
-		for (unsigned j = 0; j < steps; j++)
+		for (unsigned j = 0; j < steps+1; j++)
 		{
 			float tv = j * deltaT;
 
