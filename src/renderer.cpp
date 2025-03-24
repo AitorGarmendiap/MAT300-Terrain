@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 
 namespace mat300_terrain {
-
+    
     Renderer::Renderer()
     {
 
@@ -211,5 +211,38 @@ namespace mat300_terrain {
         glDrawArrays(GL_TRIANGLES, 0, triangles.size());
 
         glBindVertexArray(0);
+    }
+
+    std::vector<glm::vec3> Renderer::TriangulateMesh(const Patch& patch)
+    {
+        std::vector<glm::vec3> triangulatedMesh;
+
+        int divisions = patch.GetDivisionCount() - 1;
+
+        for (int x = 0; x < divisions; x++)
+        {
+            for (int y = 1 ;y < divisions + 1; y++)
+            {
+                glm::vec3 topRigth = patch.mesh[y* (divisions+1) + (x + 1)];
+                glm::vec3 topLeft = patch.mesh[y * (divisions + 1) + (x)];
+                glm::vec3 botRigth = patch.mesh[(y -1)* (divisions + 1) + (x + 1)];
+                glm::vec3 botLeft = patch.mesh[(y -1)* (divisions + 1) + (x + 1)];
+
+                //triangulate
+                triangulatedMesh.push_back(topLeft);
+                triangulatedMesh.push_back(topRigth);
+                triangulatedMesh.push_back(botRigth);
+
+                triangulatedMesh.push_back(botRigth);
+                triangulatedMesh.push_back(botLeft);
+                triangulatedMesh.push_back(topLeft);
+            }
+
+        }
+
+
+
+
+        return triangulatedMesh;
     }
 }

@@ -25,6 +25,7 @@ namespace mat300_terrain {
         void DrawTriangles(const std::vector<glm::vec3>& triangles);
 
         void Update(float dt, const Camera& cam, const std::vector<Patch>& patches);
+        std::vector<glm::vec3> TriangulateMesh(const Patch& patch);
 
     private:
 
