@@ -22,7 +22,7 @@ namespace mat300_terrain {
         Renderer& operator=(const Renderer&) = delete;
 
         void DrawCube(glm::vec3 pos, float scale = 1);
-        void Update(float dt, const Camera& cam, const std::vector<Patches>& patches);
+        void Update(float dt, const Camera& cam, const std::vector<Patch>& patches);
 
     private:
 

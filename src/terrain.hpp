@@ -13,10 +13,12 @@ namespace mat300_terrain {
 
         void Update(float dt);
 
-        std::vector<Patches> GetPatches();
+        std::vector<Patch> GetPatches();
 
     private:
-        std::vector<Patches> mPatches;
+        std::vector<Patch> mPatches;
+
+        int mPatchCount;
     };
 
 }

@@ -1,18 +1,12 @@
 #pragma once
+
+#include "patches.hpp"
+
 #include <glm/glm.hpp>
 #include <vector>
+namespace mat300_terrain {
 
-class BezierMesh
-{
-public:
-	std::vector<glm::vec3> CalculateBezierMesh(/*Patch patch*/);
 
-private:
+	void CalculateBezierMesh(Patch& patch);
 
-	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints);
-
-	float Bernstein(int i, float t);
-
-	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
-
-};
+}

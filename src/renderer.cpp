@@ -26,7 +26,7 @@ namespace mat300_terrain {
         glCullFace(GL_BACK);
     }
 
-    void Renderer::Update(float dt, const Camera& cam, const std::vector<Patches>& patches)
+    void Renderer::Update(float dt, const Camera& cam, const std::vector<Patch>& patches)
     {
         mSimpleShaderProg.Use();
 
@@ -49,8 +49,10 @@ namespace mat300_terrain {
             for (const auto& cPoint : patch.controlPoints)
             {
                 float scale = 0.1;
-           
-                DrawCube(cPoint, scale);
+                for (const auto& pt : cPoint)
+                {
+                    DrawCube(pt, scale);
+                }
             }
 
             for (const auto& meshPoint : patch.mesh)
@@ -155,6 +157,7 @@ namespace mat300_terrain {
 
 
     }
+
     void Renderer::DrawCube(glm::vec3 pos, float scale)
     {
         glBindVertexArray(mVAO);
