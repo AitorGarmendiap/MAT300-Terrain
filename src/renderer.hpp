@@ -23,6 +23,7 @@ namespace mat300_terrain {
 
         void DrawCube(glm::vec3 pos, float scale = 1);
         void Update(float dt, const Camera& cam, const std::vector<Patch>& patches);
+        std::vector<glm::vec3> TriangulateMesh(const Patch& patch);
 
     private:
 
