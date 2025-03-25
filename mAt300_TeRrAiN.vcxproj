@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="src\app.hpp" />
     <ClInclude Include="src\bezierMesh.hpp" />
+    <ClInclude Include="src\bmp.h" />
     <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\camera_controller.hpp" />
     <ClInclude Include="src\patches.hpp" />
@@ -158,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\bezierMesh.cpp" />
+    <ClCompile Include="src\bmp.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\camera_controller.cpp" />
     <ClCompile Include="src\main.cpp" />
