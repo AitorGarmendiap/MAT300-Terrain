@@ -51,9 +51,9 @@ namespace mat300_terrain
             {
                 file >> heightMapName;
             }
-            else if (str == "PATCHCOUNT")
+            else if (str == "DIVCOUNT")
             {
-                farPlane = ReadInt(file);
+                divCount = ReadInt(file);
             }
         }
 

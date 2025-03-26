@@ -22,7 +22,7 @@ namespace mat300_terrain {
 
     void App::Run()
     {
-        mTerrain.Create(mScene.patchCount, mScene.heightMapName.c_str());
+        mTerrain.Create(mScene.divCount, mScene.heightMapName.c_str());
 
         mCamera.mTransform.translation = mScene.camPos;
 

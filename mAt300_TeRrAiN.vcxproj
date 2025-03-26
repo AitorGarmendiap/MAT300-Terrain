@@ -159,6 +159,7 @@
     <ClCompile Include="include\imgui\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\bezierMesh.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\camera_controller.cpp" />
     <ClCompile Include="src\main.cpp" />

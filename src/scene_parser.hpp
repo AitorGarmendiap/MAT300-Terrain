@@ -17,7 +17,7 @@ namespace mat300_terrain
         float farPlane;
 
         std::string heightMapName;
-        int patchCount;
+        int divCount;
 
     private:
 
