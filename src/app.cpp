@@ -13,7 +13,7 @@
 
 namespace mat300_terrain {
 
-    App::App()
+    App::App() : mCamController([this](float x, float y) { this->SelectPatch(x, y); })
     {
         CreateImgui();
     }
@@ -34,7 +34,7 @@ namespace mat300_terrain {
 
             mWindow.Clear();
 
-            mCamController.HandleInput(dt, mWindow.GetGLFWWindow(), mCamera, &SelectPatch);
+            mCamController.HandleInput(dt, mWindow.GetGLFWWindow(), mCamera);
 
             mCamera.SetPrespectiveProjection(mScene.FOVy, mWindow.GetAspectRatio(), mScene.nearPlane, mScene.farPlane);
 
@@ -91,7 +91,7 @@ namespace mat300_terrain {
         glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
         glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
 
-        Patches* closestPatch = nullptr;
+        Patch* closestPatch = nullptr;
         for (auto& patch : mTerrain.GetPatches())
         {
             if (PatchIntersection(mCamera.GetPosition(), rayMouse, patch))
@@ -101,7 +101,7 @@ namespace mat300_terrain {
         }
     }
 
-    bool App::PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patches patch)
+    bool App::PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch)
     {
         glm::vec3 planeNormal = glm::normalize(glm::cross(patch.GetRight(), patch.GetUp()));
 

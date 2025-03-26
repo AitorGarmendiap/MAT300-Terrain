@@ -18,7 +18,7 @@ namespace mat300_terrain {
         moveSpeed = std::max(0.1f, moveSpeed);     // Prevent negative or zero move speed
     }
 
-    void CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam, void (*SelectPatch)(float, float))
+    void CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam)
     {
         glfwSetScrollCallback(window, ScrollCallback);
 

@@ -18,13 +18,13 @@ namespace mat300_terrain {
         App& operator=(const App&) = delete;
 
         void Run();
+        void SelectPatch(float mouseX, float mouseY);
 
     private:
 
         void CreateImgui();
         void UpdateImgui(float dt);
-        void SelectPatch(float mouseX, float mouseY);
-        bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patches patch);
+        bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch);
 
         static constexpr int WIDTH = 1280;
         static constexpr int HEIGHT = 720;
@@ -34,7 +34,7 @@ namespace mat300_terrain {
         Scene mScene{ "data/scenes/scene_01.txt" };
 
         Camera mCamera;
-        CameraControler mCamController{};
+        CameraControler mCamController;
 
         Renderer mRenderer{};
         Terrain mTerrain;
