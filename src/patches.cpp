@@ -2,21 +2,12 @@
 
 namespace mat300_terrain
 {
-	void Patch::UpdateNormal(glm::vec3 newNormal)
+	void Patch::ComputeNormal()
 	{
-		glm::vec3 tangent = (fabs(normal.x) > 0.9f) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
-		right = glm::normalize(glm::cross(normal, tangent)) * size.x;
-
-		up = glm::normalize(glm::cross(normal, GetRight())) * size.y;
-	}
-
-	glm::vec3 Patch::GetRight()
-	{
-		return right;
-	}
-
-	glm::vec3 Patch::GetUp()
-	{
-		return up;
+		// bottom right - bottom left (B - A)
+		glm::vec3 v1 = controlPoints[3][0] - controlPoints[0][0];
+		// top right - bottom left (D - A)
+		glm::vec3 v2 = controlPoints[3][3] - controlPoints[0][0];
+		normal = glm::normalize(glm::cross(v1, v2));
 	}
 }

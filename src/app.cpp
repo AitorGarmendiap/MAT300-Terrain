@@ -76,7 +76,7 @@ namespace mat300_terrain {
             ImGui::Text("dt: %f", dt);
             if (ImGui::TreeNode("Patches"))
             {
-                ImGui::SliderInt("Patches size", &mTerrain.size, 1, 20);
+                ImGui::SliderInt("Patches size", &mScene.patchCount, 1, 20);
                 ImGui::TreePop();
             }
         }
@@ -91,35 +91,52 @@ namespace mat300_terrain {
         glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
         glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
 
-        Patch* closestPatch = nullptr;
-        for (auto& patch : mTerrain.GetPatches())
+        int closestPatch = -1;
+        float distance = 0;
+        const std::vector<Patch>& patches = mTerrain.GetPatches();
+        for (int i = 0; i < patches.size(); ++i)
         {
-            if (PatchIntersection(mCamera.GetPosition(), rayMouse, patch))
+            if (PatchIntersection(mCamera.GetPosition(), rayMouse, patches[i]))
             {
-                // check distance
+                glm::vec3 center = (patches[i].controlPoints[0][0] + patches[i].controlPoints[3][3]) / 2.f;
+                float newDistance = glm::distance(mCamera.GetPosition(), center);
+                if (closestPatch < 0 || newDistance < distance)
+                {
+                    closestPatch = i;
+                    distance = newDistance;
+                }
             }
+        }
+        if (closestPatch != SelectedPatch)
+        {
+            SelectedPatch = closestPatch;
+            // remove guizmo from selected point
+        }
+        else // select point
+        {
+
         }
     }
 
     bool App::PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch)
     {
-        glm::vec3 planeNormal = glm::normalize(glm::cross(patch.GetRight(), patch.GetUp()));
+        // check if they are parallel
+        float denom = glm::dot(patch.normal, dir);
+        if (glm::abs(denom) < 1e-6) return false;
 
-        // they are parallel
-        float denom = glm::dot(dir, planeNormal);
-        if (fabs(denom) < 1e-6) return false;
-
-        // intersection behind
-        float t = glm::dot(patch.pos - origin, planeNormal) / denom;
+        // check if intersection is behind
+        float t = glm::dot(patch.normal, patch.controlPoints[0][0] - origin) / denom;
         if (t < 0) return false;
 
-        // Proyect intersection
-        glm::vec3 localHit = origin + t * dir - patch.pos;
-        float projRight = glm::dot(localHit, glm::normalize(patch.GetRight()));
-        float projUp = glm::dot(localHit, glm::normalize(patch.GetUp()));
+        // Check if intersection is inside the patch
+        glm::vec3 intersection = origin + t * dir;
+        glm::vec3 v1 = patch.controlPoints[3][0] - patch.controlPoints[0][0]; // B - A
+        glm::vec3 v2 = patch.controlPoints[3][3] - patch.controlPoints[0][0]; // D - A
 
-        // Verify intersection
-        return (projRight >= 0 && projRight <= glm::length(patch.GetRight()) &&
-            projUp >= 0 && projUp <= glm::length(patch.GetUp()));
+        glm::vec3 intersectionLocal = intersection - patch.controlPoints[0][0];
+        float u = glm::dot(intersectionLocal, v1) / glm::dot(v1, v1);
+        float v = glm::dot(intersectionLocal, v2) / glm::dot(v2, v2);
+
+        return (u >= 0 && u <= 1 && v >= 0 && v <= 1);
     }
 }

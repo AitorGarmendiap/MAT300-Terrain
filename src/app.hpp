@@ -18,12 +18,12 @@ namespace mat300_terrain {
         App& operator=(const App&) = delete;
 
         void Run();
-        void SelectPatch(float mouseX, float mouseY);
 
     private:
 
         void CreateImgui();
         void UpdateImgui(float dt);
+        void SelectPatch(float mouseX, float mouseY);
         bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch);
 
         static constexpr int WIDTH = 1280;
@@ -38,5 +38,8 @@ namespace mat300_terrain {
 
         Renderer mRenderer{};
         Terrain mTerrain;
+
+        int SelectedPatch = -1;
+        int SelectedPoint = -1;
     };
 }

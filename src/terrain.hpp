@@ -12,7 +12,6 @@ namespace mat300_terrain {
         void Update(float dt);
 
         std::vector<Patch> GetPatches();
-        int size = 5;
 
     private:
         std::vector<Patch> mPatches;
