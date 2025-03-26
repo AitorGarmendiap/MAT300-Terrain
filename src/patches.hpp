@@ -9,6 +9,7 @@ namespace mat300_terrain {
 
         int GetStepCount() const { return (1 / t); }
         void ComputeNormal();
+        void Update();
 
         std::vector<std::vector<glm::vec3>> controlPoints;
         std::vector<glm::vec3> mesh;

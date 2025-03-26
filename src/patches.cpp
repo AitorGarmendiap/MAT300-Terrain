@@ -10,4 +10,9 @@ namespace mat300_terrain
 		glm::vec3 v2 = controlPoints[3][3] - controlPoints[0][0];
 		normal = glm::normalize(glm::cross(v1, v2));
 	}
+
+	void Patch::Update()
+	{
+
+	}
 }

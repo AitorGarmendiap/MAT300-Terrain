@@ -23,8 +23,10 @@ namespace mat300_terrain {
 
         void CreateImgui();
         void UpdateImgui(float dt);
+        bool Guizmo(glm::vec3* position, const glm::mat4& v, const glm::mat4& p);
         void SelectPatch(float mouseX, float mouseY);
-        bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch);
+        bool PatchIntersection(glm::vec3 origin, glm::vec3 dir, const Patch& patch);
+        int PointIntersection(glm::vec3 origin, glm::vec3 dir, const Patch& patch, float radius = 5);
 
         static constexpr int WIDTH = 1280;
         static constexpr int HEIGHT = 720;
@@ -39,7 +41,7 @@ namespace mat300_terrain {
         Renderer mRenderer{};
         Terrain mTerrain;
 
-        int SelectedPatch = -1;
-        int SelectedPoint = -1;
+        int SelectedPatch = 0;
+        int SelectedPoint = 5;
     };
 }

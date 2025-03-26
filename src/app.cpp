@@ -5,11 +5,13 @@
 // std
 #include <chrono>
 #include <stdexcept>
+#include <iostream>
 
 // Imgui
 #include <imgui.h>              
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <ImGuizmo.h>
 
 namespace mat300_terrain {
 
@@ -69,14 +71,23 @@ namespace mat300_terrain {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
+
+        if (!mTerrain.mPatches.empty() && SelectedPatch >= 0 && SelectedPoint >= 0)
+        {
+            glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
+            int i = SelectedPoint / 4, j = SelectedPoint % 4;
+            if (Guizmo(&mTerrain.mPatches[SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
+                mTerrain.mPatches[SelectedPatch].Update();
+        }
 
         if (ImGui::Begin("Demo options"))
         {
-            ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
+            ImGui::Text("FPS: %f", 1.f / dt);
             ImGui::Text("dt: %f", dt);
             if (ImGui::TreeNode("Patches"))
             {
-                ImGui::SliderInt("Patches size", &mScene.patchCount, 1, 20);
+                ImGui::SliderInt("Patches count", &mScene.patchCount, 1, 20);
                 ImGui::TreePop();
             }
         }
@@ -86,6 +97,19 @@ namespace mat300_terrain {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
+    bool App::Guizmo(glm::vec3* position, const glm::mat4& v, const glm::mat4& p)
+    {
+        auto m2w = glm::translate(glm::mat4(1.f), *position);
+        ImGuizmo::SetRect(0, 0, WIDTH, HEIGHT);
+        if (ImGuizmo::Manipulate(&v[0][0], &p[0][0], ImGuizmo::TRANSLATE, ImGuizmo::WORLD, &m2w[0][0], NULL, NULL)) {
+            float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+            ImGuizmo::DecomposeMatrixToComponents(&m2w[0][0], matrixTranslation, matrixRotation, matrixScale);
+            *position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };
+            return true;
+        }
+        return false;
+    }
+
     void App::SelectPatch(float mouseX, float mouseY)
     {
         glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
@@ -93,7 +117,7 @@ namespace mat300_terrain {
 
         int closestPatch = -1;
         float distance = 0;
-        const std::vector<Patch>& patches = mTerrain.GetPatches();
+        const std::vector<Patch>& patches = mTerrain.mPatches;
         for (int i = 0; i < patches.size(); ++i)
         {
             if (PatchIntersection(mCamera.GetPosition(), rayMouse, patches[i]))
@@ -114,11 +138,13 @@ namespace mat300_terrain {
         }
         else // select point
         {
-
+            int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[SelectedPatch]);
+            if (closestPoint >= 0)
+                SelectedPoint = closestPoint;
         }
     }
 
-    bool App::PatchIntersection(glm::vec3 origin, glm::vec3 dir, Patch patch)
+    bool App::PatchIntersection(glm::vec3 origin, glm::vec3 dir, const Patch& patch)
     {
         // check if they are parallel
         float denom = glm::dot(patch.normal, dir);
@@ -138,5 +164,35 @@ namespace mat300_terrain {
         float v = glm::dot(intersectionLocal, v2) / glm::dot(v2, v2);
 
         return (u >= 0 && u <= 1 && v >= 0 && v <= 1);
+    }
+
+    int App::PointIntersection(glm::vec3 origin, glm::vec3 dir, const Patch& patch, float radius)
+    {
+        if (patch.controlPoints.empty())
+            return -1;
+
+        int closestPoint = -1;
+        float distance = 0;
+        for (int i = 0; i < 4; ++i)
+        {
+            for (int j = 0; i < 4; ++j)
+            {
+                glm::vec3 dist = origin - patch.controlPoints[i][j];
+                float proj = glm::dot(dir, dist);
+                float dist2 = glm::dot(dist, dist) - radius * radius;
+                float discriminant = proj * proj - dist2;
+                // check intersection
+                if (discriminant >= 0)
+                {
+                    float newDistance = glm::distance(mCamera.GetPosition(), patch.controlPoints[i][j]);
+                    if (closestPoint < 0 || newDistance < distance)
+                    {
+                        closestPoint = 4 * i + j;
+                        distance = newDistance;
+                    }
+                }
+            }
+        }
+        return closestPoint;
     }
 }

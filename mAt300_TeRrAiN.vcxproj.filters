@@ -92,5 +92,8 @@
     <ClCompile Include="src\patches.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="include\imgui\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

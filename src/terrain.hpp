@@ -13,7 +13,6 @@ namespace mat300_terrain {
 
         std::vector<Patch> GetPatches();
 
-    private:
         std::vector<Patch> mPatches;
 
         int mPatchCount = 4;
