@@ -15,9 +15,8 @@ namespace mat300_terrain {
 
     private:
         std::vector<Patch> mPatches;
-        // Width & Height of the terrain??
-        int mWidth;
-        int mHeight;
+        int mWidth = 0;
+        int mHeight = 0;
         int mDivCount = 1; 
     };
 
