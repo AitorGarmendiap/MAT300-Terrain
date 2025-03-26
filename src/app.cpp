@@ -20,13 +20,12 @@ namespace mat300_terrain {
 
     void App::Run()
     {
+        mTerrain.Create(mScene.patchCount, mScene.heightMapName.c_str());
+
+        mCamera.mTransform.translation = mScene.camPos;
+
         auto currentTime = std::chrono::high_resolution_clock::now();
-        float vertFov = 60;
 
-        float nearPlane = 0.1;
-        float farPlane = 500;
-
-        //Update
         while (mWindow.ShouldClose() == false)
         {
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -37,7 +36,7 @@ namespace mat300_terrain {
 
             mCamController.HandleInput(dt, mWindow.GetGLFWWindow(), mCamera, &SelectPatch);
 
-            mCamera.SetPrespectiveProjection(vertFov, mWindow.GetAspectRatio(), nearPlane, farPlane);
+            mCamera.SetPrespectiveProjection(mScene.FOVy, mWindow.GetAspectRatio(), mScene.nearPlane, mScene.farPlane);
 
             mCamera.Update();
 

@@ -1,55 +1,59 @@
 #include "bezierMesh.hpp"
 
-std::vector<glm::vec3> BezierMesh::CalculateBezierMesh()
-{
-	std::vector<std::vector<glm::vec3>> controlPoints = { {},
-														  {},
-														  {},
-														  {} };
+namespace mat300_terrain {
 
-	std::vector<glm::vec3> mesh;
+	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints);
 
-	float deltaT = 0.1;
-	float steps = 1.0f / deltaT;
+	float Bernstein(int i, float t);
 
-	for (unsigned i = 0; i < steps; i++)
+	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
+
+
+	void CalculateBezierMesh(Patch& patch)
 	{
-		float tu = i * deltaT;
+		std::vector<glm::vec3> mesh;
 
-		for (unsigned j = 0; j < steps; j++)
+        float steps = patch.GetStepCount();
+
+		for (unsigned i = 0; i <= steps; i++)
 		{
-			float tv = j * deltaT;
+			float tu = i * patch.t;
 
-			glm::vec3 pointInMesh = GetMeshPointAt(tu, tv, controlPoints);
+			for (unsigned j = 0; j <= steps; j++)
+			{
+				float tv = j * patch.t;
 
-			mesh.push_back(pointInMesh);
+				glm::vec3 pointInMesh = GetMeshPointAt(tu, tv, patch.controlPoints);
 
+				mesh.push_back(pointInMesh);
+
+			}
 		}
+		patch.mesh = mesh;
 	}
 
-	return mesh;
-}
-
-glm::vec3 BezierMesh::GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
-{
-	glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
-	for (int i = 0; i < 4; i++)
+	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
 	{
-		for (int j = 0; j < 4; j++)
+		glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
+
+		for (int i = 0; i < 4; i++)
 		{
-			float Bu = Bernstein(i, u);
-			float Bv = Bernstein(j, v);
+			for (int j = 0; j < 4; j++)
+			{
+				float Bu = Bernstein(i, u);
+				float Bv = Bernstein(j, v);
 
-			newPoint += controlPoints[i][j] * Bv * Bu;
+				newPoint += controlPoints[i][j] * Bv * Bu;
+			}
 		}
+		return newPoint;
 	}
-	return newPoint;
-}
 
-float BezierMesh::Bernstein(int i, float t)
-{
-	int n = 3;
+	float Bernstein(int i, float t)
+	{
+		int n = 3;
 
-	//calculate bernstein with precomputed binomial coeffs
-	return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+		//calculate bernstein with precomputed binomial coeffs
+		return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+	}
 }

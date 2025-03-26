@@ -1,6 +1,7 @@
 #pragma once
 
 #include "window.hpp"
+#include "scene_parser.hpp"
 #include "camera.hpp"
 #include "camera_controller.hpp"
 #include "renderer.hpp"
@@ -29,6 +30,8 @@ namespace mat300_terrain {
         static constexpr int HEIGHT = 720;
 
         Window mWindow{ WIDTH, HEIGHT, "mat300 terrain" };
+
+        Scene mScene{ "data/scenes/scene_01.txt" };
 
         Camera mCamera;
         CameraControler mCamController{};

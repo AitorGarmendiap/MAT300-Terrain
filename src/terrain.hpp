@@ -8,16 +8,16 @@ namespace mat300_terrain {
     class Terrain
     {
     public:
-        Terrain(){}
-        ~Terrain(){}
-
+        void Create(int patchCount, const char* heightname);
         void Update(float dt);
 
-        std::vector<Patches> GetPatches();
+        std::vector<Patch> GetPatches();
         int size = 5;
 
     private:
-        std::vector<Patches> mPatches;
+        std::vector<Patch> mPatches;
+
+        int mPatchCount = 4;
     };
 
 }

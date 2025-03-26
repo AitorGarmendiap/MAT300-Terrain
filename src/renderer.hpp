@@ -22,7 +22,10 @@ namespace mat300_terrain {
         Renderer& operator=(const Renderer&) = delete;
 
         void DrawCube(glm::vec3 pos, float scale = 1);
-        void Update(float dt, const Camera& cam, const std::vector<Patches>& patches);
+        void DrawTriangles(const std::vector<glm::vec3>& triangles);
+
+        void Update(float dt, const Camera& cam, const std::vector<Patch>& patches);
+        std::vector<glm::vec3> TriangulateMesh(const Patch& patch);
 
     private:
 
@@ -31,6 +34,12 @@ namespace mat300_terrain {
         Shader        mSimpleFragShader;
 
         // Cube stuff
+        void CreateTriangleArray();
+        void ReCreateTriangleArray(const std::vector<glm::vec3>& triangles);
+
+        GLuint mVAOtr;
+        GLuint mVBOtr;
+        GLuint mEBOtr;
         void CreateCube();
         GLuint mVAO;
         GLuint mVBO;
