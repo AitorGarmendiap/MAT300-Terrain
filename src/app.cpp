@@ -87,7 +87,7 @@ namespace mat300_terrain {
             ImGui::Text("dt: %f", dt);
             if (ImGui::TreeNode("Patches"))
             {
-                ImGui::SliderInt("Patches count", &mScene.patchCount, 1, 20);
+                ImGui::SliderInt("Patches count", &mScene.divCount, 1, 20);
                 ImGui::TreePop();
             }
         }
@@ -131,16 +131,19 @@ namespace mat300_terrain {
                 }
             }
         }
-        if (closestPatch != SelectedPatch)
+        if (closestPatch >= 0)
         {
-            SelectedPatch = closestPatch;
-            // remove guizmo from selected point
-        }
-        else // select point
-        {
-            int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[SelectedPatch]);
-            if (closestPoint >= 0)
-                SelectedPoint = closestPoint;
+            if (closestPatch != SelectedPatch)
+            {
+                SelectedPatch = closestPatch;
+                // remove guizmo from selected point
+            }
+            else // select point
+            {
+                int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[SelectedPatch]);
+                if (closestPoint >= 0)
+                    SelectedPoint = closestPoint;
+            }
         }
     }
 
