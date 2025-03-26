@@ -38,25 +38,28 @@ namespace mat300_terrain {
 //        mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
         mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
 
+        mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 0.0, 0.0));
+        DrawCube(glm::vec3(0.0, 0.0, 0.0), 1);
+
         for (const auto& patch : patches)
         {
             mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
            
             for (const auto& cPoint : patch.controlPoints)
             {
-                float scale = 0.1;
+                float scale = 0.5;
                 for (const auto& pt : cPoint)
                 {
                     DrawCube(pt, scale);
                 }
             }
 
-            for (const auto& meshPoint : patch.mesh)
-            {
-                float scale = 0.01;
-
-                DrawCube(meshPoint, scale);
-            }
+            //for (const auto& meshPoint : patch.mesh)
+            //{
+            //    float scale = 0.01;
+            //
+            //    DrawCube(meshPoint, scale);
+            //}
 
             DrawTriangles(TriangulateMesh(patch));
         }
@@ -87,6 +90,8 @@ namespace mat300_terrain {
 
         ReCreateTriangleArray(triangles);
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
         glBindVertexArray(mVAOtr);
 
         mSimpleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
@@ -94,6 +99,7 @@ namespace mat300_terrain {
         // Draw triangles
         glDrawArrays(GL_TRIANGLES, 0, triangles.size());
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glBindVertexArray(0);
     }
