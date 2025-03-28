@@ -22,7 +22,7 @@ namespace mat300_terrain {
 
     void App::Run()
     {
-        mTerrain.Create(mScene.divCount, mScene.heightMapName.c_str());
+        mTerrain.LoadHeightMap(mScene.divCount, mScene.heightMapName.c_str());
 
         mCamera.mTransform.translation = mScene.camPos;
 
@@ -42,7 +42,7 @@ namespace mat300_terrain {
 
             mCamera.Update();
 
-            mTerrain.Update(dt);
+            mTerrain.Update();
 
             mRenderer.Update(dt, mCamera, mTerrain.GetPatches());
 
@@ -87,7 +87,7 @@ namespace mat300_terrain {
             ImGui::Text("dt: %f", dt);
             if (ImGui::TreeNode("Patches"))
             {
-                ImGui::SliderInt("Patches count", &mScene.divCount, 1, 20);
+                ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
                 ImGui::TreePop();
             }
         }

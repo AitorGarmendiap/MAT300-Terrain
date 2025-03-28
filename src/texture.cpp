@@ -14,4 +14,14 @@ namespace mat300_terrain
 	{
 		delete[] mData;
 	}
+
+	void Texture::operator=(const Texture& text)
+	{
+		mWidth = text.width();
+		mHeight = text.height();
+		//size_t length = strlen(reinterpret_cast<const char*>(text.data())) + 1;
+		size_t length = sizeof(text.data());
+		mData = new unsigned char[length];
+		memcpy(mData, text.data(), length);
+	}
 }

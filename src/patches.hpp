@@ -5,7 +5,7 @@ namespace mat300_terrain {
 
     struct Patch
     {
-        Patch() {}
+        Patch();
 
         int GetStepCount() const { return (1 / t); }
         void ComputeNormal();
