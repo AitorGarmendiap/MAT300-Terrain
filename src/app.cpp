@@ -12,12 +12,16 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <ImGuizmo.h>
+#include <filesystem>
 
 namespace mat300_terrain {
 
     App::App() : mCamController([this](float x, float y) { this->SelectPatch(x, y); })
     {
         CreateImgui();
+        // get all scene names  
+        for (const auto& entry : std::filesystem::directory_iterator(scenePath))
+            scenes.push_back(entry.path().filename().string());
     }
 
     void App::Run()
@@ -81,13 +85,36 @@ namespace mat300_terrain {
                 mTerrain.mPatches[SelectedPatch].Update();
         }
 
-        if (ImGui::Begin("Demo options"))
+        ImGui::SetNextWindowPos({ 0, 0 });
+        ImGui::SetNextWindowSize({ 300, HEIGHT });
+        if (ImGui::Begin("Demo options", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
         {
+            ImGui::PushItemWidth(150);
             ImGui::Text("FPS: %f", 1.f / dt);
             ImGui::Text("dt: %f", dt);
-            if (ImGui::TreeNode("Patches"))
+            if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
+                if (ImGui::BeginCombo("Select file", currentScene.substr(scenePath.size()).c_str()))
+                {
+                    for (const auto& file : scenes)
+                    {
+                        std::string scene = scenePath + file;
+                        if (ImGui::Selectable(file.c_str(), currentScene == scene))
+                        {
+                            // Load new scene
+                            currentScene = scene;
+                            mScene.LoadDataFromFile(scene.c_str());
+                            mTerrain.LoadHeightMap(mScene.divCount, mScene.heightMapName.c_str());
+                            mCamera.mTransform.translation = mScene.camPos;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
+            {
                 ImGui::TreePop();
             }
         }

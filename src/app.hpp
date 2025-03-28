@@ -33,7 +33,10 @@ namespace mat300_terrain {
 
         Window mWindow{ WIDTH, HEIGHT, "mat300 terrain" };
 
-        Scene mScene{ "data/scenes/scene_01.txt" };
+        std::string scenePath = "data/scenes/";
+        std::string currentScene = scenePath + "Bilbao.txt";
+        Scene mScene{ currentScene.c_str() };
+        std::vector<std::string> scenes;
 
         Camera mCamera;
         CameraControler mCamController;

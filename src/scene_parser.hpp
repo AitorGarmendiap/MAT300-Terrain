@@ -19,9 +19,10 @@ namespace mat300_terrain
         std::string heightMapName;
         int divCount;
 
+        void LoadDataFromFile(const char* filename);
+
     private:
 
-        void LoadDataFromFile(const char* filename);
 
         int ReadInt(std::ifstream& f);
         float ReadFloat(std::ifstream& f);
