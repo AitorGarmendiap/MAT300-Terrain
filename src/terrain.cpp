@@ -1,19 +1,32 @@
 #include "terrain.hpp"
 #include "bezierMesh.hpp"
-#include "texture.hpp"
 
 namespace mat300_terrain {
 
-    // Create Patches with the height map 
-    void Terrain::Create(int divCount, const char* heightname)
+    Terrain::~Terrain()
+    {
+        delete mInput;
+    }
+
+    void Terrain::LoadHeightMap(int divCount, const char* heightname)
     {
         // Load the height map
-        Texture input = Texture{ heightname };
-        
+        if (mInput)
+            delete mInput;
+        mInput = new Texture{ heightname };
+
         // Init the width and depth to the same size as the height map size
-        mWidth = input.width();
-        mHeight = input.height();
-        mDivCount = divCount;
+        mWidth = mInput->width();
+        mHeight = mInput->height();
+        Create(divCount);
+    }
+
+    // Create Patches with the height map 
+    void Terrain::Create(int divCount)
+    {
+        mDivCount = prevDivCount = divCount; 
+        mPatches.clear();
+        mPatches.reserve(mDivCount * mDivCount);
 
         // Init the control points with the heights of the height map
         float patchWidth = (float)mWidth / (float)mDivCount;
@@ -33,7 +46,7 @@ namespace mat300_terrain {
                         // "which patch" = if there is 2 mDivCounts, there are 4 patches in total where (0, 0) is the first one, (1, 0) the second one etc.
                         int texX = (x * steps) + (patchWidth * j) >= mWidth ? mWidth - 1 : (x * steps) + (patchWidth * j);
                         int texY = (y * steps) + (patchHeight * i) >= mHeight ? mHeight - 1 : (y * steps) + (patchHeight * i);
-                        float heightVal = static_cast<float>(*(input.data() + (texX + texY * mWidth)));
+                        float heightVal = static_cast<float>(*(mInput->data() + (texX + texY * mWidth)));
 
                         // Transform the value from [0, 255] to [0, 1]
                         float normHeightVal = heightVal / 255.f;
@@ -46,14 +59,19 @@ namespace mat300_terrain {
                     }
                     patch.controlPoints.push_back(rowCtrlPoints);
                 }
+                patch.ComputeNormal();
                 mPatches.push_back(patch);
             }
         }
     }
 
-    void Terrain::Update(float dt)
+    void Terrain::Update()
     {
-        
+        if (mDivCount != prevDivCount)
+        {
+            prevDivCount = mDivCount;
+            Create(mDivCount);
+        }
     }
 
     std::vector<Patch> Terrain::GetPatches()

@@ -2,6 +2,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp> // rotate
+#include "imgui.h"
 
 namespace mat300_terrain {
 
@@ -57,17 +58,25 @@ namespace mat300_terrain {
 
         // Get current cursor position
         glfwGetCursorPos(window, &cursorPos.x, &cursorPos.y);
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2((float)cursorPos.x, (float)cursorPos.y);
 
         // Cameras rotational movement
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        io.MouseDown[0] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+        if (io.MouseDown[0])
         {
-
             glm::dvec3 rightVec = glm::normalize(glm::cross(cam.mForward, { 0, 1, 0 }));
 
             glm::dvec2 cursorDelta = cursorPos - prevPos;
             cam.mForward = glm::vec3(glm::vec4(cam.mForward, 0) * glm::rotate(glm::radians(15.0f) * 0.01f * cursorDelta.y, rightVec));
             cam.mForward = glm::vec3(glm::vec4(cam.mForward, 0) * glm::rotate(glm::radians(15.0f) * 0.01f * cursorDelta.x, glm::dvec3(0, 1, 0)));
         }
+        // Select Patch or Control Point
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            SelectPatch(cursorPos.x, cursorPos.y);
+        }
+        
         prevPos = cursorPos;
     }
 
