@@ -5,14 +5,13 @@
 // std
 #include <chrono>
 #include <stdexcept>
-#include <iostream>
+#include <filesystem>
 
 // Imgui
 #include <imgui.h>              
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <ImGuizmo.h>
-#include <filesystem>
 
 namespace mat300_terrain {
 
@@ -52,7 +51,7 @@ namespace mat300_terrain {
 
             UpdateImgui(dt);
 
-            mWindow.Update();         
+            mWindow.Update();
         }
 
     }
@@ -77,12 +76,12 @@ namespace mat300_terrain {
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
 
-        if (!mTerrain.mPatches.empty() && SelectedPatch >= 0 && SelectedPoint >= 0)
+        if (!mTerrain.mPatches.empty() && mRenderer.SelectedPatch >= 0 && mRenderer.SelectedPoint >= 0)
         {
             glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
-            int i = SelectedPoint / 4, j = SelectedPoint % 4;
-            if (Guizmo(&mTerrain.mPatches[SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
-                mTerrain.mPatches[SelectedPatch].Update();
+            int i = mRenderer.SelectedPoint / 4, j = mRenderer.SelectedPoint % 4;
+            if (Guizmo(&mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
+                mTerrain.mPatches[mRenderer.SelectedPatch].Update();
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });
@@ -115,6 +114,9 @@ namespace mat300_terrain {
             }
             if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                ImGui::DragFloat3("Patch color", &mRenderer.patchColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
+                ImGui::DragFloat3("Border color", &mRenderer.borderColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
+                ImGui::DragFloat3("Selected color", &mRenderer.selectedColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
                 ImGui::TreePop();
             }
         }
@@ -139,12 +141,24 @@ namespace mat300_terrain {
 
     void App::SelectPatch(float mouseX, float mouseY)
     {
-        glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
+        // convert screen coordinate to world
+        glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, HEIGHT - mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
         glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
-
+        
+        const std::vector<Patch>& patches = mTerrain.mPatches;
+        // if patch selected now select point
+        if (mRenderer.SelectedPatch >= 0)
+        {
+            int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[mRenderer.SelectedPatch]);
+            if (closestPoint >= 0)
+            {
+                mRenderer.SelectedPoint = closestPoint;
+                return;
+            }
+        }
+        // select patch
         int closestPatch = -1;
         float distance = 0;
-        const std::vector<Patch>& patches = mTerrain.mPatches;
         for (int i = 0; i < patches.size(); ++i)
         {
             if (PatchIntersection(mCamera.GetPosition(), rayMouse, patches[i]))
@@ -158,19 +172,17 @@ namespace mat300_terrain {
                 }
             }
         }
-        if (closestPatch >= 0)
+        // no patch selected
+        if (closestPatch < 0)
         {
-            if (closestPatch != SelectedPatch)
-            {
-                SelectedPatch = closestPatch;
-                // remove guizmo from selected point
-            }
-            else // select point
-            {
-                int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[SelectedPatch]);
-                if (closestPoint >= 0)
-                    SelectedPoint = closestPoint;
-            }
+            mRenderer.SelectedPatch = -1;
+            mRenderer.SelectedPoint = -1;
+        }
+        // change patch
+        if (closestPatch != mRenderer.SelectedPatch)
+        {
+            mRenderer.SelectedPatch = closestPatch;
+            mRenderer.SelectedPoint = -1;
         }
     }
 
@@ -205,7 +217,7 @@ namespace mat300_terrain {
         float distance = 0;
         for (int i = 0; i < 4; ++i)
         {
-            for (int j = 0; i < 4; ++j)
+            for (int j = 0; j < 4; ++j)
             {
                 glm::vec3 dist = origin - patch.controlPoints[i][j];
                 float proj = glm::dot(dir, dist);

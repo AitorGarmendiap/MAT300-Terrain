@@ -27,6 +27,13 @@ namespace mat300_terrain {
         void Update(float dt, const Camera& cam, const std::vector<Patch>& patches);
         std::vector<glm::vec3> TriangulateMesh(const Patch& patch);
 
+        int SelectedPatch = -1;
+        int SelectedPoint = -1;
+
+        glm::vec3 patchColor = { 1.0, 1.0, 0.0 };
+        glm::vec3 borderColor = { 1.0, 1.0, 1.0 };
+        glm::vec3 selectedColor = { 1.0, 0.0, 0.0 };
+        
     private:
 
         ShaderProgram mSimpleShaderProg;

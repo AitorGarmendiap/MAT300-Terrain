@@ -43,8 +43,5 @@ namespace mat300_terrain {
 
         Renderer mRenderer{};
         Terrain mTerrain;
-
-        int SelectedPatch = 0;
-        int SelectedPoint = 5;
     };
 }

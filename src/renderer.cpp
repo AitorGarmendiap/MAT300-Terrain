@@ -41,15 +41,38 @@ namespace mat300_terrain {
         mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 0.0, 0.0));
         DrawCube(glm::vec3(0.0, 0.0, 0.0), 1);
 
-        for (const auto& patch : patches)
+        //for (const auto& patch : patches)
+        for (int p = 0; p < patches.size(); ++p)
         {
-            mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 1.0, 0.0));
+            const Patch& patch = patches[p];
            
-            for (const auto& cPoint : patch.controlPoints)
+            //for (const auto& cPoint : patch.controlPoints)
+            //{
+            //    float scale = 0.5;
+            //    for (const auto& pt : cPoint)
+            //    {
+            //        DrawCube(pt, scale);
+            //    }
+            //}
+
+            for (int i = 0; i < 4; ++i)
             {
-                float scale = 0.5;
-                for (const auto& pt : cPoint)
+                for (int j = 0; j < 4; ++j)
                 {
+                    float scale = 0.5;
+                    // borders
+                    if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
+                    {
+                        scale = 1.5;
+                        mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
+                    }
+                    else
+                        mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+
+                    const auto& pt = patch.controlPoints[i][j];
+                    // bigger control points for selected patch
+                    if (p == SelectedPatch)
+                        scale = 1.5;
                     DrawCube(pt, scale);
                 }
             }
@@ -60,10 +83,13 @@ namespace mat300_terrain {
             //
             //    DrawCube(meshPoint, scale);
             //}
-
+            if (p == SelectedPatch)
+                mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
+            else
+                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
             DrawTriangles(TriangulateMesh(patch));
         }
-
+        
         mSimpleShaderProg.Unuse();
     }
 
