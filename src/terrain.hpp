@@ -13,6 +13,7 @@ namespace mat300_terrain {
         void LoadHeightMap(int divCount, const char* heightname);
         void Create(int divCount);
         void Update();
+        void Update(int patch, int controlPoint);
 
         std::vector<Patch> GetPatches();
 
@@ -20,6 +21,7 @@ namespace mat300_terrain {
         int mWidth = 0;
         int mHeight = 0;
         int mDivCount = 1; 
+        bool sharpEdges = true;
 
     private:
         int prevDivCount = 0;

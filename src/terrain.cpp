@@ -65,6 +65,16 @@ namespace mat300_terrain {
         }
     }
 
+    std::vector<Patch> Terrain::GetPatches()
+    {
+        for (auto& patch : mPatches)
+        {
+            CalculateBezierMesh(patch);
+        }
+
+        return mPatches;
+    }
+
     void Terrain::Update()
     {
         if (mDivCount != prevDivCount)
@@ -74,13 +84,41 @@ namespace mat300_terrain {
         }
     }
 
-    std::vector<Patch> Terrain::GetPatches()
+    void Terrain::Update(int patch, int controlPoint)
     {
-        for (auto& patch : mPatches)
+        if (sharpEdges)
         {
-            CalculateBezierMesh(patch);
-        }
+            int pointY = controlPoint / 4,  pointX = controlPoint % 4;
+            int patchY = patch / mDivCount, patchX = patch % mDivCount;
 
-        return mPatches;
+            // move adjacent point in next patch
+            if (pointY == 0) // top
+            {
+                if (patchY > 0)
+                    mPatches[patch - mDivCount].controlPoints[3][pointX] = mPatches[patch].controlPoints[pointY][pointX];
+            }
+            else if (pointY == 3) // bottom
+            {
+                if ((patchY + 1) < mDivCount)
+                    mPatches[patch + mDivCount].controlPoints[0][pointX] = mPatches[patch].controlPoints[pointY][pointX];
+            }
+            else
+            {
+                if (pointX == 0) // left
+                {
+                    if (patchX > 0)
+                        mPatches[patch - 1].controlPoints[pointY][3] = mPatches[patch].controlPoints[pointY][pointX];
+                }
+                else if (pointX == 3) // right
+                {
+                    if ((patchX + 1) < mDivCount)
+                        mPatches[patch + 1].controlPoints[pointY][0] = mPatches[patch].controlPoints[pointY][pointX];
+                }
+            }
+        }
+        else
+        {
+
+        }
     }
 }

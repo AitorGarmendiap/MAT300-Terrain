@@ -35,11 +35,8 @@ namespace mat300_terrain {
         mSimpleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
 
         mSimpleShaderProg.SetVec3("lightPos", glm::vec3(5.0f, 5.0f, 5.0f));
-//        mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
+        // mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
         mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
-
-        mSimpleShaderProg.SetVec3("uniform_Color", glm::vec3(1.0, 0.0, 0.0));
-        DrawCube(glm::vec3(0.0, 0.0, 0.0), 1);
 
         //for (const auto& patch : patches)
         for (int p = 0; p < patches.size(); ++p)
@@ -77,12 +74,6 @@ namespace mat300_terrain {
                 }
             }
 
-            //for (const auto& meshPoint : patch.mesh)
-            //{
-            //    float scale = 0.01;
-            //
-            //    DrawCube(meshPoint, scale);
-            //}
             if (p == SelectedPatch)
                 mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
             else

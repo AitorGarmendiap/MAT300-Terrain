@@ -81,7 +81,7 @@ namespace mat300_terrain {
             glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
             int i = mRenderer.SelectedPoint / 4, j = mRenderer.SelectedPoint % 4;
             if (Guizmo(&mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
-                mTerrain.mPatches[mRenderer.SelectedPatch].Update();
+                mTerrain.Update(mRenderer.SelectedPatch, mRenderer.SelectedPoint);
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });
@@ -93,7 +93,6 @@ namespace mat300_terrain {
             ImGui::Text("dt: %f", dt);
             if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
                 if (ImGui::BeginCombo("Select file", currentScene.substr(scenePath.size()).c_str()))
                 {
                     for (const auto& file : scenes)
@@ -110,6 +109,8 @@ namespace mat300_terrain {
                     }
                     ImGui::EndCombo();
                 }
+                ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
+                ImGui::Checkbox("Sharp edges", &mTerrain.sharpEdges);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
@@ -219,6 +220,9 @@ namespace mat300_terrain {
         {
             for (int j = 0; j < 4; ++j)
             {
+                if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
+                    continue;
+
                 glm::vec3 dist = origin - patch.controlPoints[i][j];
                 float proj = glm::dot(dir, dist);
                 float dist2 = glm::dot(dist, dist) - radius * radius;
