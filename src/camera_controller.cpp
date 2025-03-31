@@ -28,31 +28,33 @@ namespace mat300_terrain {
 
         cam.mRight = glm::normalize(glm::cross(cam.mForward, cam.mUp));
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
-            cam.mTransform.translation += speed * dt * glm::normalize(cam.mForward);
-        };
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
-            cam.mTransform.translation -= speed * dt * glm::normalize(cam.mForward);
-        };
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            cam.mTransform.translation += speed * dt * glm::normalize(cam.mRight);
-        };
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            cam.mTransform.translation -= speed * dt * glm::normalize(cam.mRight);
-        };
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        {
-            cam.mTransform.translation.y += speed * dt;
-        };
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        {
-            cam.mTransform.translation.y -= speed * dt;
-        };
-
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            {
+                cam.mTransform.translation += speed * dt * glm::normalize(cam.mForward);
+            };
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            {
+                cam.mTransform.translation -= speed * dt * glm::normalize(cam.mForward);
+            };
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            {
+                cam.mTransform.translation += speed * dt * glm::normalize(cam.mRight);
+            };
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            {
+                cam.mTransform.translation -= speed * dt * glm::normalize(cam.mRight);
+            };
+            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            {
+                cam.mTransform.translation.y += speed * dt;
+            };
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            {
+                cam.mTransform.translation.y -= speed * dt;
+            };
+        }
         static glm::dvec2 prevPos{};
         static glm::dvec2 cursorPos{};
 
@@ -63,7 +65,8 @@ namespace mat300_terrain {
 
         // Cameras rotational movement
         io.MouseDown[0] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-        if (io.MouseDown[0])
+        io.MouseDown[1] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+        if (io.MouseDown[1])
         {
             glm::dvec3 rightVec = glm::normalize(glm::cross(cam.mForward, { 0, 1, 0 }));
 

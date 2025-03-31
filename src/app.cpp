@@ -9,9 +9,9 @@
 
 // Imgui
 #include <imgui.h>              
+#include <ImGuizmo.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <ImGuizmo.h>
 
 namespace mat300_terrain {
 
@@ -80,8 +80,10 @@ namespace mat300_terrain {
         {
             glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
             int i = mRenderer.SelectedPoint / 4, j = mRenderer.SelectedPoint % 4;
+            glm::vec3 pointPrevPos = mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j];
+
             if (Guizmo(&mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
-                mTerrain.Update(mRenderer.SelectedPatch, mRenderer.SelectedPoint);
+                mTerrain.Update(mRenderer.SelectedPatch, mRenderer.SelectedPoint, pointPrevPos);
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });
@@ -131,7 +133,7 @@ namespace mat300_terrain {
     {
         auto m2w = glm::translate(glm::mat4(1.f), *position);
         ImGuizmo::SetRect(0, 0, WIDTH, HEIGHT);
-        if (ImGuizmo::Manipulate(&v[0][0], &p[0][0], ImGuizmo::TRANSLATE, ImGuizmo::WORLD, &m2w[0][0], NULL, NULL)) {
+        if (ImGuizmo::Manipulate(&v[0][0], &p[0][0], ImGuizmo::TRANSLATE_Y, ImGuizmo::WORLD, &m2w[0][0], NULL, NULL)) {
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&m2w[0][0], matrixTranslation, matrixRotation, matrixScale);
             *position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };

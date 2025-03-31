@@ -13,8 +13,8 @@ namespace mat300_terrain {
         void LoadHeightMap(int divCount, const char* heightname);
         void Create(int divCount);
         void Update();
-        void Update(int patch, int controlPoint);
-
+        void Update(int patch, int controlPoint, glm::vec3 prevPos);
+        void MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY,  bool positiveDiff);
         std::vector<Patch> GetPatches();
 
         std::vector<Patch> mPatches;

@@ -63,13 +63,17 @@ namespace mat300_terrain {
                 mPatches.push_back(patch);
             }
         }
+        for (auto& patch : mPatches)
+        {
+            CalculateBezierMesh(patch);
+        }
     }
 
     std::vector<Patch> Terrain::GetPatches()
     {
         for (auto& patch : mPatches)
         {
-            CalculateBezierMesh(patch);
+            //CalculateBezierMesh(patch);
         }
 
         return mPatches;
@@ -84,7 +88,7 @@ namespace mat300_terrain {
         }
     }
 
-    void Terrain::Update(int patch, int controlPoint)
+    void Terrain::Update(int patch, int controlPoint, glm::vec3 prevPos)
     {
         if (sharpEdges)
         {
@@ -115,10 +119,236 @@ namespace mat300_terrain {
                         mPatches[patch + 1].controlPoints[pointY][0] = mPatches[patch].controlPoints[pointY][pointX];
                 }
             }
-        }
-        else
-        {
 
+
+        }
+        else   //smooth edges
+        {
+            // +=====+=====+=====+=====+
+            // | 3,0 | 3,1 | 3,2 | 3,3 |
+            // +=====+=====+=====+=====+
+            // | 2,0 | 2,1 | 2,2 | 2,3 |
+            // +-----+-----+-----+-----+
+            // | 1,0 | 1,1 | 1,2 | 1,3 |
+            // +-----+-----+-----+-----+
+            // | 0,0 | 0,1 | 0,2 | 0,3 |
+            // +-----+-----+-----+-----+
+            //get the control point coordinate
+            int pointY = controlPoint / 4, pointX = controlPoint % 4;
+            int patchY = patch / mDivCount, patchX = patch % mDivCount;
+
+
+            float deltaY = (mPatches[patch].controlPoints[pointY][pointX].y - prevPos.y);
+
+            //Center Control Points
+            if (pointY == 2 && pointX == 1)  //
+            {
+                //get the edges near the control point
+                glm::vec3 northEdge = mPatches[patch].controlPoints[3][1];
+                glm::vec3 westEdge = mPatches[patch].controlPoints[2][0];
+                
+                //get the height diff between them
+                float northDiff = (northEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                float westDiff = (westEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                
+                //move the control points from the following patches so they collinear
+                MoveControlPointY(patch - 1, 2, 2, westDiff,westEdge.y, false);
+                MoveControlPointY(patch + mDivCount, 1, 1,  northDiff,northEdge.y, false);
+              
+                //get the difference between the edges and diagonal control point
+                glm::vec3 westPoint = mPatches[patch - 1].controlPoints[2][2];
+                glm::vec3 northPoint = mPatches[patch + mDivCount].controlPoints[1][1];
+              
+                glm::vec3 WestPathcNorthEdge = mPatches[patch - 1].controlPoints[3][2];
+                glm::vec3 NorthPathcWestEdge = mPatches[patch + mDivCount].controlPoints[1][0];
+              
+                float diffY1 = westPoint.y - WestPathcNorthEdge.y;
+                float diffY2 = northPoint.y - NorthPathcWestEdge.y;
+              
+                // height for the diagonal control point
+                float finalYDiff = (diffY1 + WestPathcNorthEdge.y + diffY2 + NorthPathcWestEdge.y) / 2;
+              
+                MoveControlPointY(patch + mDivCount - 1, 1, 2, -finalYDiff, 0, false);
+
+            }
+            if (pointY == 2 && pointX == 2)  //
+            {
+                //get the edges near the control point
+                glm::vec3 northEdge = mPatches[patch].controlPoints[3][2];
+                glm::vec3 eastEdge = mPatches[patch].controlPoints[2][3];
+                
+                //get the height diff between them
+                float northDiff = (northEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                float eastDiff = (eastEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                
+                //move the control points from the following patches so they collinear
+                MoveControlPointY(patch + 1, 2, 1, eastDiff,eastEdge.y, false);
+                MoveControlPointY(patch + mDivCount, 1, 2, northDiff, northEdge.y, false);
+              
+                //get the difference between the edges and diagonal control point
+                glm::vec3 eastPoint = mPatches[patch + 1].controlPoints[2][1];
+                glm::vec3 northPoint = mPatches[patch + mDivCount].controlPoints[1][2]; 
+              
+                glm::vec3 EastPathcNorthEdge = mPatches[patch + 1].controlPoints[3][1];
+                glm::vec3 NorthPathcEastEdge = mPatches[patch + mDivCount].controlPoints[1][3];
+              
+                float diffY1 = eastPoint.y - EastPathcNorthEdge.y;
+                float diffY2 = northPoint.y - NorthPathcEastEdge.y;
+              
+                // height for the diagonal control point
+                float finalYDiff = (diffY1 + EastPathcNorthEdge.y + diffY2 + NorthPathcEastEdge.y) / 2;
+                
+                MoveControlPointY(patch + mDivCount + 1, 1, 1, -finalYDiff, 0, false);
+            }
+            if (pointY == 1 && pointX == 1)  //
+            {
+                //get the edges near the control point
+                glm::vec3 westEdge = mPatches[patch].controlPoints[1][0];
+                glm::vec3 southEdge = mPatches[patch].controlPoints[0][1];
+                
+                //get the height diff between them
+                float westDiff = (westEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                float southDiff = (southEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                
+                //move the control points from the following patches so they collinear
+                MoveControlPointY(patch - mDivCount, 2, 1, southDiff,southEdge.y, false);
+                MoveControlPointY(patch - 1 , 1, 2, westDiff, westEdge.y, false);
+                
+                //get the difference between the edges and diagonal control point
+                glm::vec3 eastPoint = mPatches[patch - 1].controlPoints[1][2];
+                glm::vec3 southPoint = mPatches[patch - mDivCount].controlPoints[2][1];
+                
+                glm::vec3 EastPathcSouthEdge = mPatches[patch - 1].controlPoints[0][2];
+                glm::vec3 SouthPathcEastEdge = mPatches[patch - mDivCount].controlPoints[2][0];
+                
+                float diffY1 = eastPoint.y - EastPathcSouthEdge.y;
+                float diffY2 = southPoint.y - SouthPathcEastEdge.y;
+                
+                // height for the diagonal control point
+                float finalYDiff = (diffY1 + EastPathcSouthEdge.y + diffY2 + SouthPathcEastEdge.y) / 2;
+                
+
+                MoveControlPointY(patch - mDivCount - 1, 2, 2, -finalYDiff, 0, false);
+
+            }
+            if (pointY == 1 && pointX == 2)  //
+            {
+                //get the edges near the control point
+                glm::vec3 eastEdge = mPatches[patch].controlPoints[1][3];
+                glm::vec3 southEdge = mPatches[patch].controlPoints[0][2];
+               
+                //get the height diff between them
+                float eastDiff = (eastEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+                float southDiff = (southEdge.y - mPatches[patch].controlPoints[pointY][pointX].y);
+               
+                //move the control points from the following patches so they collinear
+                MoveControlPointY(patch - mDivCount, 2, 2, southDiff, southEdge.y, false);
+                MoveControlPointY(patch + 1, 1, 1, eastDiff, eastEdge.y, false);
+
+                //get the difference between the edges and diagonal control point
+                glm::vec3 eastPoint = mPatches[patch + 1].controlPoints[1][1];
+                glm::vec3 southPoint = mPatches[patch - mDivCount].controlPoints[2][2];
+
+                glm::vec3 EastPathcSouthEdge = mPatches[patch + 1].controlPoints[0][1];
+                glm::vec3 SouthPathcEastEdge = mPatches[patch - mDivCount].controlPoints[2][3];
+
+                float diffY1 = eastPoint.y - EastPathcSouthEdge.y;
+                float diffY2 = southPoint.y - SouthPathcEastEdge.y;
+
+                // height for the diagonal control point
+                float finalYDiff = (diffY1 + EastPathcSouthEdge.y + diffY2 + SouthPathcEastEdge.y) / 2;
+                MoveControlPointY(patch - mDivCount + 1, 2, 2, -finalYDiff, 0, false);
+            }
+
+            //edge Control points
+            if (pointY == 3 && pointX == 1)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch + mDivCount, 0, 1, movingPoint.y, 0, false);
+
+                //move the mid control points near by the same delta
+                MoveControlPointY(patch, 2, 1, deltaY, mPatches[patch].controlPoints[2][1].y, false);
+                MoveControlPointY(patch + mDivCount, 1, 1, deltaY, mPatches[patch + mDivCount].controlPoints[1][1].y, false);
+
+                glm::vec3 pivotPoint = mPatches[patch].controlPoints[3][0];
+
+                float diffY = movingPoint.y - pivotPoint.y;
+
+                MoveControlPointY(patch - 1, 3, 2, -diffY, pivotPoint.y, false);
+                MoveControlPointY(patch - 1 + mDivCount, 0, 2, -diffY, pivotPoint.y, false);
+
+            }
+            if (pointY == 3 && pointX == 2)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch + mDivCount, 0, 2, movingPoint.y, 0, false);
+
+
+            }
+
+            if (pointY == 2 && pointX == 3)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch + 1, 2, 0, movingPoint.y, 0, false);
+
+
+            }
+            if (pointY == 1 && pointX == 3)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch + 1, 1, 0, movingPoint.y, 0, false);
+            }
+
+            if (pointY == 0 && pointX == 1)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch - mDivCount, 3, 1, movingPoint.y, 0, false);
+
+            }
+            if (pointY == 0 && pointX == 2)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch - mDivCount, 3, 2, movingPoint.y, 0, false);
+
+            }
+
+            if (pointY == 2 && pointX == 0)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch - 1, 2, 3, movingPoint.y, 0, false);
+
+
+            }
+            if (pointY == 1 && pointX == 0)  //
+            {
+                glm::vec3 movingPoint = mPatches[patch].controlPoints[pointY][pointX];
+                // move the same control point from the other path
+                MoveControlPointY(patch - 1, 1, 3, movingPoint.y, 0, false);
+
+            }
+        }
+        for (auto& patch : mPatches)
+        {
+            CalculateBezierMesh(patch);
+        }
+    }
+    void Terrain::MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY, bool positiveDiff)
+    {
+        //if (positiveDiff)
+        {
+            mPatches[patch].controlPoints[controlPointY][controlPointX].y = reffY + deltaY;
+
+        }
+       // else
+        {
+           // mPatches[patch].controlPoints[controlPointY][controlPointX].y = -deltaY;
         }
     }
 }
