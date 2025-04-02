@@ -81,11 +81,17 @@ namespace mat300_terrain {
 
     void Terrain::Update()
     {
+        //if not camera
         if (mDivCount != prevDivCount)
         {
             prevDivCount = mDivCount;
             Create(mDivCount);
         }
+        //if camera
+        //go over all patches calculate dt by distance
+        // dist = length2 cam - patch.getCenter
+        // calculate dt. lerp(0.075, 0.3, dist/ (far-near));
+        // calclate bezier
     }
 
     void Terrain::Update(int patch, int controlPoint, glm::vec3 prevPos)

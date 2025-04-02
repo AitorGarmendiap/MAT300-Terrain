@@ -18,6 +18,20 @@ namespace mat300_terrain {
 
         mSimpleShaderProg.LinkProgram();
 
+        mTriangleShaderProg.CreateProgram();
+
+        // shaders for drawing shapes
+        mTriangleVertShader.CreateShader(GL_VERTEX_SHADER, "data/shaders/triangle.vert");
+        mTriangleFragShader.CreateShader(GL_FRAGMENT_SHADER, "data/shaders/triangle.frag");
+
+        mTriangleVertShader.CompileShader();
+        mTriangleFragShader.CompileShader();
+
+        mTriangleShaderProg.AttachVertShader(mTriangleVertShader);
+        mTriangleShaderProg.AttachFragShader(mTriangleFragShader);
+
+        mTriangleShaderProg.LinkProgram();
+
         CreateTriangleArray();
         CreateCube();
 
@@ -38,20 +52,22 @@ namespace mat300_terrain {
         // mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
         mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
 
+        mSimpleShaderProg.Unuse();
+
+        mTriangleShaderProg.Use();
+
+        mTriangleShaderProg.SetMat4("uniform_View", cam.GetView());
+        mTriangleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
+        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0));
+
+        mTriangleShaderProg.Unuse();
+
         //for (const auto& patch : patches)
         for (int p = 0; p < patches.size(); ++p)
         {
             const Patch& patch = patches[p];
-           
-            //for (const auto& cPoint : patch.controlPoints)
-            //{
-            //    float scale = 0.5;
-            //    for (const auto& pt : cPoint)
-            //    {
-            //        DrawCube(pt, scale);
-            //    }
-            //}
 
+            mSimpleShaderProg.Use();
             for (int i = 0; i < 4; ++i)
             {
                 for (int j = 0; j < 4; ++j)
@@ -73,15 +89,17 @@ namespace mat300_terrain {
                     DrawCube(pt, scale);
                 }
             }
+            mSimpleShaderProg.Unuse();
 
-            if (p == SelectedPatch)
-                mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
-            else
-                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+            mTriangleShaderProg.Use();
+            //if (p == SelectedPatch)
+            //    mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
+            //else
+            //    mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
             DrawTriangles(TriangulateMesh(patch));
+            mTriangleShaderProg.Unuse();
         }
         
-        mSimpleShaderProg.Unuse();
     }
 
     void Renderer::DrawCube(glm::vec3 pos, float scale)
@@ -111,7 +129,7 @@ namespace mat300_terrain {
 
         glBindVertexArray(mVAOtr);
 
-        mSimpleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+        mTriangleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
 
         // Draw triangles
         glDrawArrays(GL_TRIANGLES, 0, triangles.size());

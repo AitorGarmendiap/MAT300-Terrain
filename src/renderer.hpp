@@ -39,6 +39,9 @@ namespace mat300_terrain {
         ShaderProgram mSimpleShaderProg;
         Shader        mSimpleVertShader;
         Shader        mSimpleFragShader;
+        ShaderProgram mTriangleShaderProg;
+        Shader        mTriangleVertShader;
+        Shader        mTriangleFragShader;
 
         // Cube stuff
         void CreateTriangleArray();
