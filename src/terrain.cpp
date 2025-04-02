@@ -1,5 +1,4 @@
 #include "terrain.hpp"
-#include "bezierMesh.hpp"
 
 namespace mat300_terrain {
 
@@ -69,17 +68,12 @@ namespace mat300_terrain {
         }
     }
 
-    std::vector<Patch> Terrain::GetPatches()
+    std::vector<Patch>& Terrain::GetPatches()
     {
-        for (auto& patch : mPatches)
-        {
-            //CalculateBezierMesh(patch);
-        }
-
         return mPatches;
     }
 
-    void Terrain::Update()
+    void Terrain::Update(const glm::vec3& camPos, float far)
     {
         //if not camera
         if (mDivCount != prevDivCount)
@@ -88,10 +82,37 @@ namespace mat300_terrain {
             Create(mDivCount);
         }
         //if camera
-        //go over all patches calculate dt by distance
-        // dist = length2 cam - patch.getCenter
-        // calculate dt. lerp(0.075, 0.3, dist/ (far-near));
-        // calclate bezier
+        if (updateDetails != detailedPatch)
+        {
+            updateDetails = detailedPatch;
+            if (detailedPatch)
+            {
+                // go over all patches calculate dt by distance
+                for (auto& patch : mPatches)
+                {
+                    // dist = length2 cam - patch.getCenter
+                    float dist = glm::distance(camPos, patch.GetCenterPoint());
+
+                    // calculate dt. lerp(0.075, 0.3, dist/ (far-near));
+                    patch.t = 1.f / glm::mix(10, 2, dist / far);
+                    patch.mesh.clear();
+
+                    // calculate bezier
+                    CalculateBezierMesh(patch);
+                }
+            }
+            else
+            {
+                for (auto& patch : mPatches)
+                {
+                    patch.t = 0.1f;
+                    patch.mesh.clear();
+
+                    // calculate bezier
+                    CalculateBezierMesh(patch);
+                }
+            }
+        }
     }
 
     void Terrain::Update(int patch, int controlPoint, glm::vec3 prevPos)

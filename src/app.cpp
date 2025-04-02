@@ -45,7 +45,7 @@ namespace mat300_terrain {
 
             mCamera.Update();
 
-            mTerrain.Update();
+            mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
             mRenderer.Update(dt, mCamera, mTerrain.GetPatches());
 
@@ -76,13 +76,13 @@ namespace mat300_terrain {
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
 
-        if (!mTerrain.mPatches.empty() && mRenderer.SelectedPatch >= 0 && mRenderer.SelectedPoint >= 0)
+        if (!mTerrain.GetPatches().empty() && mRenderer.SelectedPatch >= 0 && mRenderer.SelectedPoint >= 0)
         {
             glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
             int i = mRenderer.SelectedPoint / 4, j = mRenderer.SelectedPoint % 4;
-            glm::vec3 pointPrevPos = mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j];
+            glm::vec3 pointPrevPos = mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j];
 
-            if (Guizmo(&mTerrain.mPatches[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
+            if (Guizmo(&mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
                 mTerrain.Update(mRenderer.SelectedPatch, mRenderer.SelectedPoint, pointPrevPos);
         }
 
@@ -113,6 +113,7 @@ namespace mat300_terrain {
                 }
                 ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
                 ImGui::Checkbox("Sharp edges", &mTerrain.sharpEdges);
+                ImGui::Checkbox("Detailed depending on camera pos", &mTerrain.detailedPatch);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
@@ -148,7 +149,7 @@ namespace mat300_terrain {
         glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, HEIGHT - mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
         glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
         
-        const std::vector<Patch>& patches = mTerrain.mPatches;
+        const std::vector<Patch>& patches = mTerrain.GetPatches();
         // if patch selected now select point
         if (mRenderer.SelectedPatch >= 0)
         {

@@ -7,7 +7,7 @@ namespace mat300_terrain {
     {
         Patch();
 
-        int GetStepCount() const { return (1 / t); }
+        int GetStepCount() const;
         void ComputeNormal();
         glm::vec3 GetCenterPoint();
         std::vector<std::vector<glm::vec3>> controlPoints;

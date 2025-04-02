@@ -2,6 +2,7 @@
 
 #include "patches.hpp"
 #include "texture.hpp"
+#include "bezierMesh.hpp"
 #include <vector>
 
 namespace mat300_terrain {
@@ -12,18 +13,20 @@ namespace mat300_terrain {
         ~Terrain();
         void LoadHeightMap(int divCount, const char* heightname);
         void Create(int divCount);
-        void Update();
+        void Update(const glm::vec3& camPos, float far);
         void Update(int patch, int controlPoint, glm::vec3 prevPos);
         void MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY,  bool positiveDiff);
-        std::vector<Patch> GetPatches();
+        std::vector<Patch>& GetPatches();
 
-        std::vector<Patch> mPatches;
         int mWidth = 0;
         int mHeight = 0;
-        int mDivCount = 1; 
+        int mDivCount = 1;
         bool sharpEdges = true;
+        bool detailedPatch = false;
 
     private:
+        std::vector<Patch> mPatches;
+        bool updateDetails = false;
         int prevDivCount = 0;
         Texture* mInput = nullptr;
     };
