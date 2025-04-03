@@ -27,6 +27,9 @@ namespace mat300_terrain {
         mPatches.clear();
         mPatches.reserve(mDivCount * mDivCount);
 
+        //// Init the river. PLEASE DELETE THIS ONCE THE CREATION IN DEMO IS DONE
+        //mRiver.Create(mWidth, mHeight);
+
         // Init the control points with the heights of the height map
         float patchWidth = (float)mWidth / (float)mDivCount;
         float patchHeight = (float)mHeight / (float)mDivCount;
@@ -76,33 +79,16 @@ namespace mat300_terrain {
     void Terrain::Update(const glm::vec3& camPos, float far)
     {
         //if not camera
-        if (mDivCount != prevDivCount)
+        if (!detailedPatch)
         {
-            prevDivCount = mDivCount;
-            Create(mDivCount);
-        }
-        //if camera
-        if (updateDetails != detailedPatch)
-        {
-            updateDetails = detailedPatch;
-            if (detailedPatch)
+            if (mDivCount != prevDivCount)
             {
-                // go over all patches calculate dt by distance
-                for (auto& patch : mPatches)
-                {
-                    // dist = length2 cam - patch.getCenter
-                    float dist = glm::distance(camPos, patch.GetCenterPoint());
-
-                    // calculate dt. lerp(0.075, 0.3, dist/ (far-near));
-                    patch.t = 1.f / glm::mix(10, 2, dist / far);
-                    patch.mesh.clear();
-
-                    // calculate bezier
-                    CalculateBezierMesh(patch);
-                }
+                prevDivCount = mDivCount;
+                Create(mDivCount);
             }
-            else
+            if (updateDetails)
             {
+                updateDetails = detailedPatch;
                 for (auto& patch : mPatches)
                 {
                     patch.t = 0.1f;
@@ -111,6 +97,26 @@ namespace mat300_terrain {
                     // calculate bezier
                     CalculateBezierMesh(patch);
                 }
+            }
+        }
+        //if camera
+        else
+        {
+            if(!updateDetails)
+                updateDetails = detailedPatch;
+
+            // go over all patches calculate dt by distance
+            for (auto& patch : mPatches)
+            {
+                // dist = length2 cam - patch.getCenter
+                float dist = glm::distance(camPos, patch.GetCenterPoint());
+
+                // calculate dt. lerp(0.075, 0.3, dist/ (far-near));
+                patch.t = 1.f / glm::mix(10, 2, dist / far);
+                patch.mesh.clear();
+
+                // calculate bezier
+                CalculateBezierMesh(patch);
             }
         }
     }
