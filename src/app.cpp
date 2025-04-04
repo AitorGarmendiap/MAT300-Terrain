@@ -47,7 +47,7 @@ namespace mat300_terrain {
 
             mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
-            mRenderer.Update(dt, mCamera, mTerrain.GetPatches());
+            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts());
 
             UpdateImgui(dt);
 

@@ -54,6 +54,9 @@
     <ClInclude Include="src\scene_parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\river.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\terrain.cpp">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="include\imgui\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\river.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

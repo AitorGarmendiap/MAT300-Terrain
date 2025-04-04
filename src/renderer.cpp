@@ -32,8 +32,23 @@ namespace mat300_terrain {
 
         mTriangleShaderProg.LinkProgram();
 
+        mLineShaderProg.CreateProgram();
+
+        // shaders for drawing lines
+        mLineVertShader.CreateShader(GL_VERTEX_SHADER, "data/shaders/line.vert");
+        mLineFragShader.CreateShader(GL_FRAGMENT_SHADER, "data/shaders/line.frag");
+
+        mLineVertShader.CompileShader();
+        mLineFragShader.CompileShader();
+
+        mLineShaderProg.AttachVertShader(mLineVertShader);
+        mLineShaderProg.AttachFragShader(mLineFragShader);
+
+        mLineShaderProg.LinkProgram();
+
         CreateTriangleArray();
         CreateCube();
+        CreateLine();
 
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
@@ -41,7 +56,7 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(float dt, const Camera& cam, const std::vector<Patch>& patches)
+    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts)
     {
         mSimpleShaderProg.Use();
 
@@ -89,6 +104,19 @@ namespace mat300_terrain {
                     DrawCube(pt, scale);
                 }
             }
+
+            for (auto& pt : ctrlPts)
+            {
+                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+                DrawCube(pt, 1);
+            }
+
+            for (auto& pt : river)
+            {
+                mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
+                DrawCube(pt, 0.5);
+            }
+
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
@@ -98,6 +126,13 @@ namespace mat300_terrain {
             //    mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
+
+            mLineShaderProg.Use();
+            mLineShaderProg.SetMat4("uniform_View", cam.GetView());
+            mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
+            mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+            DrawLines(LineMesh(river));
+            mLineShaderProg.Unuse();
         }
         
     }
@@ -139,6 +174,25 @@ namespace mat300_terrain {
         glBindVertexArray(0);
     }
 
+    void Renderer::DrawLines(const std::vector<glm::vec3>& lines)
+    {
+        if (lines.empty())
+            return;
+
+        ReCreateLineArray(lines);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glBindVertexArray(mVAOln);
+
+        // Draw triangles
+        glDrawArrays(GL_LINES, 0, lines.size());
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        glBindVertexArray(0);
+    }
+
     void Renderer::CreateTriangleArray()
     {
         glGenVertexArrays(1, &mVAOtr);
@@ -165,6 +219,16 @@ namespace mat300_terrain {
 
         glBindBuffer(GL_ARRAY_BUFFER, mVBOtr);
         glBufferData(GL_ARRAY_BUFFER, triangles.size() * sizeof(glm::vec3), triangles.data(), GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
+    }
+
+    void Renderer::ReCreateLineArray(const std::vector<glm::vec3>& lines)
+    {
+        glBindVertexArray(mVAOln);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mVBOln);
+        glBufferData(GL_ARRAY_BUFFER, lines.size() * sizeof(glm::vec3), lines.data(), GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
@@ -260,6 +324,25 @@ namespace mat300_terrain {
 
     }
 
+    void Renderer::CreateLine()
+    {
+        glGenVertexArrays(1, &mVAOln);
+        glGenBuffers(1, &mVBOln);
+
+        glBindVertexArray(mVAOln);
+
+        // 4. Bind and upload vertex data
+        glBindBuffer(GL_ARRAY_BUFFER, mVBOln);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);  // No data yet
+
+        // 6. Define vertex attributes (position, color, texture, normal)
+        glEnableVertexAttribArray(0); // Position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+        // 7. Unbind to prevent accidental changes
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
 
     std::vector<glm::vec3> Renderer::TriangulateMesh(const Patch& patch)
     {
@@ -292,5 +375,15 @@ namespace mat300_terrain {
 
 
         return triangulatedMesh;
+    }
+    std::vector<glm::vec3> Renderer::LineMesh(const std::vector<glm::vec3>& line)
+    {
+        std::vector<glm::vec3> res;
+        for (int i = 0; i < line.size() - 1; i++)
+        {
+            res.push_back(line[i]);
+            res.push_back(line[i + 1]);
+        }
+        return res;
     }
 }

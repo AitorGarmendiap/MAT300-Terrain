@@ -149,6 +149,7 @@
     <ClInclude Include="src\camera_controller.hpp" />
     <ClInclude Include="src\patches.hpp" />
     <ClInclude Include="src\renderer.hpp" />
+    <ClInclude Include="src\river.hpp" />
     <ClInclude Include="src\scene_parser.hpp" />
     <ClInclude Include="src\shader.hpp" />
     <ClInclude Include="src\shader_program.hpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="include\imgui\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\bezierMesh.cpp" />
+    <ClCompile Include="src\river.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\camera_controller.cpp" />

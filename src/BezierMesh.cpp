@@ -4,8 +4,6 @@ namespace mat300_terrain {
 
 	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints);
 
-	float Bernstein(int i, float t);
-
 	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
 
 
@@ -30,6 +28,19 @@ namespace mat300_terrain {
 			}
 		}
 		patch.mesh = mesh;
+	}
+
+	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints)
+	{
+		std::vector<glm::vec3> res;
+		for (float t = 0.f; t < 1.f; t += 0.01f)
+		{
+			glm::vec3 out_pts = { 0, 0, 0 };
+			for (int i = 0; i < ctrlPoints.size(); i++)
+				out_pts += ctrlPoints[i] * Bernstein(i, t);
+			res.push_back(out_pts);
+		}
+		return res;
 	}
 
 	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
