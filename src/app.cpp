@@ -47,7 +47,7 @@ namespace mat300_terrain {
 
             mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
-            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts());
+            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts(), mTerrain.mDivCount);
 
             UpdateImgui(dt);
 
@@ -83,16 +83,18 @@ namespace mat300_terrain {
             glm::vec3 pointPrevPos = mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j];
 
             if (Guizmo(&mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
-                mTerrain.Update(mRenderer.SelectedPatch, mRenderer.SelectedPoint, pointPrevPos);
+                mTerrain.Recalculate(mRenderer.SelectedPatch, mRenderer.SelectedPoint, pointPrevPos);
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowSize({ 300, HEIGHT });
+
         if (ImGui::Begin("Demo options", nullptr, ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
         {
             ImGui::PushItemWidth(150);
             ImGui::Text("FPS: %f", 1.f / dt);
             ImGui::Text("dt: %f", dt);
+
             if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 if (ImGui::BeginCombo("Select file", currentScene.substr(scenePath.size()).c_str()))
@@ -107,20 +109,19 @@ namespace mat300_terrain {
                             mScene.LoadDataFromFile(scene.c_str());
                             mTerrain.LoadHeightMap(mScene.divCount, mScene.heightMapName.c_str());
                             mCamera.mTransform.translation = mScene.camPos;
+                            mCamera.mForward = glm::vec3(0.0f, 0.0f, 1.0f);
                         }
                     }
                     ImGui::EndCombo();
                 }
-                ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 20);
+                ImGui::SliderInt("Patches count", &mTerrain.mDivCount, 1, 100);
                 ImGui::Checkbox("Sharp edges", &mTerrain.sharpEdges);
                 ImGui::Checkbox("Detailed depending on camera pos", &mTerrain.detailedPatch);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::DragFloat3("Patch color", &mRenderer.patchColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
-                ImGui::DragFloat3("Border color", &mRenderer.borderColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
-                ImGui::DragFloat3("Selected color", &mRenderer.selectedColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
+                ImGui::Checkbox("Wireframe mode", &mRenderer.wireframe);
                 ImGui::TreePop();
             }
         }

@@ -56,16 +56,12 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts)
+    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts, int divCount)
     {
         mSimpleShaderProg.Use();
 
         mSimpleShaderProg.SetMat4("uniform_View", cam.GetView());
         mSimpleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-
-        mSimpleShaderProg.SetVec3("lightPos", glm::vec3(5.0f, 5.0f, 5.0f));
-        // mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
-        mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
 
         mSimpleShaderProg.Unuse();
 
@@ -73,25 +69,31 @@ namespace mat300_terrain {
 
         mTriangleShaderProg.SetMat4("uniform_View", cam.GetView());
         mTriangleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0));
+        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0)); // TODO use actual res
 
         mTriangleShaderProg.Unuse();
 
-        //for (const auto& patch : patches)
+        mLineShaderProg.Use();
+        mLineShaderProg.SetMat4("uniform_View", cam.GetView());
+        mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
+        mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+        mLineShaderProg.Unuse();
+
         for (int p = 0; p < patches.size(); ++p)
         {
             const Patch& patch = patches[p];
 
             mSimpleShaderProg.Use();
+
             for (int i = 0; i < 4; ++i)
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    float scale = 0.5;
+                    float scale = 10.f / divCount;
                     // borders
                     if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
                     {
-                        scale = 1.5;
+                        scale = (10.f * 2) / divCount;
                         mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
                     }
                     else
@@ -100,37 +102,36 @@ namespace mat300_terrain {
                     const auto& pt = patch.controlPoints[i][j];
                     // bigger control points for selected patch
                     if (p == SelectedPatch)
-                        scale = 1.5;
+                        scale = (10.f * 2) / divCount;
                     DrawCube(pt, scale);
                 }
             }
 
+            mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
             for (auto& pt : ctrlPts)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
                 DrawCube(pt, 1);
             }
 
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
             for (auto& pt : river)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
                 DrawCube(pt, 0.5);
             }
 
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
+
             //if (p == SelectedPatch)
-            //    mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
+            //    mTriangleShaderProg.SetVec3("uniform_Color", selectedColor);
             //else
-            //    mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+            //    mTriangleShaderProg.SetVec3("uniform_Color", patchColor);
+            //
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
 
-            mLineShaderProg.Use();
-            mLineShaderProg.SetMat4("uniform_View", cam.GetView());
-            mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-            mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+            mLineShaderProg.Use(); 
             DrawLines(LineMesh(river));
             mLineShaderProg.Unuse();
         }
@@ -160,7 +161,10 @@ namespace mat300_terrain {
 
         ReCreateTriangleArray(triangles);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (wireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glBindVertexArray(mVAOtr);
 
