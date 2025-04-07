@@ -1,3 +1,0 @@
-CAMERA (0.0,0.0,3.0) 60 0.1 1000 //pos fovy near far
-HMAP data/textures/heightmap_arratia.png
-DIVCOUNT 15
