@@ -15,7 +15,7 @@ void main()
 {
     frag_uv = aUV;
 
-    frag_pos = vec3(uniform_View * uniform_Model * vec4(aPos, 1.0));                // Transform position to world space
+    frag_pos = vec3(uniform_View * uniform_Model * vec4(aPos, 1.0)); // Transform position to view space
     frag_normal = mat3(transpose(inverse(uniform_Model))) * aNormal; // Correct normal transformation
 
     gl_Position = uniform_Proj * vec4(frag_pos, 1.0);

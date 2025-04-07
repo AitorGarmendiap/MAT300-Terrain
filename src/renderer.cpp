@@ -63,10 +63,6 @@ namespace mat300_terrain {
         mSimpleShaderProg.SetMat4("uniform_View", cam.GetView());
         mSimpleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
 
-        mSimpleShaderProg.SetVec3("lightPos", glm::vec3(5.0f, 5.0f, 5.0f));
-        // mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
-        mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
-
         mSimpleShaderProg.Unuse();
 
         mTriangleShaderProg.Use();
