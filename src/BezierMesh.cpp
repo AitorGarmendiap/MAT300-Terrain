@@ -2,7 +2,7 @@
 
 namespace mat300_terrain {
 
-	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints);
+	glm::vec3 GetMeshPointAt(float u, float v, glm::vec3 controlPoints[4][4]);
 
 	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
 
@@ -43,7 +43,7 @@ namespace mat300_terrain {
 		return res;
 	}
 
-	glm::vec3 GetMeshPointAt(float u, float v, std::vector<std::vector<glm::vec3>>& controlPoints)
+	glm::vec3 GetMeshPointAt(float u, float v, glm::vec3 controlPoints[4][4])
 	{
 		glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
 

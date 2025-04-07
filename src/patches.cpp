@@ -4,7 +4,6 @@ namespace mat300_terrain
 {
 	Patch::Patch()
 	{
-		controlPoints.reserve(16);
 	}
 
 	void Patch::ComputeNormal()

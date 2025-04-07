@@ -30,8 +30,8 @@ namespace mat300_terrain
             for (auto& patch : patches)
             {
                 auto& ctrlPts = patch.controlPoints;
-                min = ctrlPts.front().front();
-                max = ctrlPts.back().back();
+                min = ctrlPts[0][0];
+                max = ctrlPts[3][3];
                 if ((pt.x > min.x || glm::epsilonEqual(pt.x, min.x, FLT_EPSILON)) && (pt.x < max.x || glm::epsilonEqual(pt.x, max.x, FLT_EPSILON)))
                 {
                     if ((pt.z > min.z || glm::epsilonEqual(pt.z, min.z, FLT_EPSILON)) && (pt.z < max.z || glm::epsilonEqual(pt.z, max.z, FLT_EPSILON)))

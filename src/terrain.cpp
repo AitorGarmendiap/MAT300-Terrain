@@ -41,7 +41,6 @@ namespace mat300_terrain {
                 Patch patch;
                 for (int y = 0; y < 4; y++)
                 {
-                    std::vector<glm::vec3> rowCtrlPoints;
                     for (int x = 0; x < 4; x++)
                     {
                         // Retrieve the height: (actual pos * amount of dist for next ctrl point) + (patch size depending on mDivCount * "which patch")
@@ -57,9 +56,8 @@ namespace mat300_terrain {
                         float finalHeight = normHeightVal * (mWidth / 4.f);
 
                         // Store the computed value to the y-component of the current control point
-                        rowCtrlPoints.push_back({ (x * steps) + (patchWidth * j), finalHeight, (y * steps) + (patchHeight * i) });
+                        patch.controlPoints[y][x] = glm::vec3({(x * steps) + (patchWidth * j), finalHeight, (y * steps) + (patchHeight * i)});
                     }
-                    patch.controlPoints.push_back(rowCtrlPoints);
                 }
                 patch.ComputeNormal();
                 mPatches.push_back(patch);

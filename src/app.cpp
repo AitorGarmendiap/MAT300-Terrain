@@ -214,9 +214,6 @@ namespace mat300_terrain {
 
     int App::PointIntersection(glm::vec3 origin, glm::vec3 dir, const Patch& patch, float radius)
     {
-        if (patch.controlPoints.empty())
-            return -1;
-
         int closestPoint = -1;
         float distance = 0;
         for (int i = 0; i < 4; ++i)
