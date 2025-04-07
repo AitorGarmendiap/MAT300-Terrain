@@ -522,6 +522,8 @@ namespace mat300_terrain {
         {
             CalculateBezierMesh(patch);
         }
+
+        mRiver.CreateMesh(mPatches);
     }
     void Terrain::MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY, bool positiveDiff)
     {

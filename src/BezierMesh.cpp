@@ -30,10 +30,10 @@ namespace mat300_terrain {
 		patch.mesh = mesh;
 	}
 
-	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints)
+	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
 	{
 		std::vector<glm::vec3> res;
-		for (float t = 0.f; t < 1.f; t += 0.01f)
+		for (float t = 0.f; t < 1.f; t += dt)
 		{
 			glm::vec3 out_pts = { 0, 0, 0 };
 			for (int i = 0; i < ctrlPoints.size(); i++)
