@@ -107,6 +107,7 @@ namespace mat300_terrain {
                             mScene.LoadDataFromFile(scene.c_str());
                             mTerrain.LoadHeightMap(mScene.divCount, mScene.heightMapName.c_str());
                             mCamera.mTransform.translation = mScene.camPos;
+                            mCamera.mForward = glm::vec3(0.0f, 0.0f, 1.0f);
                         }
                     }
                     ImGui::EndCombo();
