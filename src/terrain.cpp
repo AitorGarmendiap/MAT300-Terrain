@@ -122,7 +122,7 @@ namespace mat300_terrain {
         }
     }
 
-    void Terrain::Update(int patch, int controlPoint, glm::vec3 prevPos)
+    void Terrain::Recalculate(int patch, int controlPoint, glm::vec3 prevPos)
     {
         if (sharpEdges)
         {

@@ -33,9 +33,9 @@ namespace mat300_terrain {
         int SelectedPoint = -1;
         bool wireframe = true;
 
-        glm::vec3 patchColor = { 1.0, 1.0, 0.0 };
-        glm::vec3 borderColor = { 1.0, 1.0, 1.0 };
-        glm::vec3 selectedColor = { 1.0, 0.0, 0.0 };
+        glm::vec3 patchColor = { 0.2, 0.6, 0.5 };
+        glm::vec3 borderColor = { 1.0, 1.0, 0.0 };
+        glm::vec3 selectedColor = { 0.0, 1.0, 0.0 };
         
     private:
 

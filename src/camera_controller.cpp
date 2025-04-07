@@ -66,6 +66,7 @@ namespace mat300_terrain {
         // Cameras rotational movement
         io.MouseDown[0] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         io.MouseDown[1] = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
         if (io.MouseDown[1])
         {
             glm::dvec3 rightVec = glm::normalize(glm::cross(cam.mForward, { 0, 1, 0 }));
