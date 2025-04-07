@@ -47,7 +47,7 @@ namespace mat300_terrain {
 
             mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
-            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts());
+            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts(), mTerrain.mDivCount);
 
             UpdateImgui(dt);
 
@@ -121,6 +121,7 @@ namespace mat300_terrain {
                 ImGui::DragFloat3("Patch color", &mRenderer.patchColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
                 ImGui::DragFloat3("Border color", &mRenderer.borderColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
                 ImGui::DragFloat3("Selected color", &mRenderer.selectedColor[0], 0.01f, 0.0f, 1.0f, "%0.1f");
+                ImGui::Checkbox("Wireframe mode", &mRenderer.wireframe);
                 ImGui::TreePop();
             }
         }

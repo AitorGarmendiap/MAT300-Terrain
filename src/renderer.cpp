@@ -56,7 +56,7 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts)
+    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts, int divCount)
     {
         mSimpleShaderProg.Use();
 
@@ -87,11 +87,11 @@ namespace mat300_terrain {
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    float scale = 0.5;
+                    float scale = 10.f / divCount;
                     // borders
                     if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
                     {
-                        scale = 1.5;
+                        scale = (10.f * 2) / divCount;
                         mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
                     }
                     else
@@ -100,7 +100,7 @@ namespace mat300_terrain {
                     const auto& pt = patch.controlPoints[i][j];
                     // bigger control points for selected patch
                     if (p == SelectedPatch)
-                        scale = 1.5;
+                        scale = (10.f * 2) / divCount;
                     DrawCube(pt, scale);
                 }
             }
@@ -160,7 +160,10 @@ namespace mat300_terrain {
 
         ReCreateTriangleArray(triangles);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (wireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glBindVertexArray(mVAOtr);
 
