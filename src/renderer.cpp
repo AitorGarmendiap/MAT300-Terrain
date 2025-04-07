@@ -73,16 +73,22 @@ namespace mat300_terrain {
 
         mTriangleShaderProg.SetMat4("uniform_View", cam.GetView());
         mTriangleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0));
+        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0)); // TODO use actual res
 
         mTriangleShaderProg.Unuse();
 
-        //for (const auto& patch : patches)
+        mLineShaderProg.Use();
+        mLineShaderProg.SetMat4("uniform_View", cam.GetView());
+        mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
+        mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+        mLineShaderProg.Unuse();
+
         for (int p = 0; p < patches.size(); ++p)
         {
             const Patch& patch = patches[p];
 
             mSimpleShaderProg.Use();
+
             for (int i = 0; i < 4; ++i)
             {
                 for (int j = 0; j < 4; ++j)
@@ -105,32 +111,31 @@ namespace mat300_terrain {
                 }
             }
 
+            mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
             for (auto& pt : ctrlPts)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
                 DrawCube(pt, 1);
             }
 
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
             for (auto& pt : river)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
                 DrawCube(pt, 0.5);
             }
 
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
+
             //if (p == SelectedPatch)
-            //    mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
+            //    mTriangleShaderProg.SetVec3("uniform_Color", selectedColor);
             //else
-            //    mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+            //    mTriangleShaderProg.SetVec3("uniform_Color", patchColor);
+            //
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
 
-            mLineShaderProg.Use();
-            mLineShaderProg.SetMat4("uniform_View", cam.GetView());
-            mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-            mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+            mLineShaderProg.Use(); 
             DrawLines(LineMesh(river));
             mLineShaderProg.Unuse();
         }
