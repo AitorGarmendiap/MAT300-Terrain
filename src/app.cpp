@@ -47,7 +47,7 @@ namespace mat300_terrain {
 
             mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
-            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver().GetMesh(), mTerrain.GetRiver().GetCtrlPts(), mTerrain.mDivCount);
+            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver(), mTerrain.mDivCount);
 
             UpdateImgui(dt);
 
@@ -122,6 +122,7 @@ namespace mat300_terrain {
             if (ImGui::TreeNodeEx("Render", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Checkbox("Wireframe mode", &mRenderer.wireframe);
+                ImGui::Checkbox("Draw control points", &mRenderer.drawControlPoints);
                 ImGui::TreePop();
             }
         }

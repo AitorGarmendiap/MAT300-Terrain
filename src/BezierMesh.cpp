@@ -5,6 +5,7 @@ namespace mat300_terrain {
 	glm::vec3 GetMeshPointAt(float u, float v, glm::vec3 controlPoints[4][4]);
 
 	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
+	const int binomialCoeffs2[3] = { 1, 2, 1 };
 
 
 	void CalculateBezierMesh(Patch& patch)
@@ -66,5 +67,21 @@ namespace mat300_terrain {
 
 		//calculate bernstein with precomputed binomial coeffs
 		return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+	}
+
+	float Bernstein2(int i, float t)
+	{
+		int n = 2;
+		return binomialCoeffs2[i] * pow(1 - t, n - i) * pow(t, i);
+	}
+
+	float dBernstein(int i, float t)
+	{
+		if (i == 0)
+			return -3 * Bernstein2(0, t);
+		else if (i == 3)
+			return 3 * Bernstein2(2, t);
+		else
+			return 3 * (Bernstein2(i - 1, t) - Bernstein2(i, t));
 	}
 }

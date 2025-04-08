@@ -56,7 +56,7 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts, int divCount)
+    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const River& river, int divCount)
     {
         mSimpleShaderProg.Use();
 
@@ -85,59 +85,87 @@ namespace mat300_terrain {
 
             mSimpleShaderProg.Use();
 
+            // draw patches and control points
             for (int i = 0; i < 4; ++i)
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    float scale = 10.f / divCount;
+                    float scale = (10.f * 2) / divCount;
+                    const auto& pt = patch.controlPoints[i][j];
                     // borders
                     if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
                     {
-                        scale = (10.f * 2) / divCount;
                         mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
+                        DrawCube(pt, scale);
                     }
-                    else
+                    else if (p == SelectedPatch)
+                    {
                         mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
-
-                    const auto& pt = patch.controlPoints[i][j];
-                    // bigger control points for selected patch
-                    if (p == SelectedPatch)
-                        scale = (10.f * 2) / divCount;
-                    DrawCube(pt, scale);
+                        DrawCube(pt, scale);
+                    }
+                    else if (drawControlPoints) // smaller control points if not selected patch
+                    {                      
+                        scale = 10.f / divCount;
+                        mSimpleShaderProg.SetVec3("uniform_Color", patchColor / 2.f);
+                        DrawCube(pt, scale);
+                    }
                 }
             }
 
-            mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
-            for (auto& pt : ctrlPts)
+            // draw river and control points
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 0 });
+            for (auto& pt : river.GetCtrlPts())
             {
-                DrawCube(pt, 1);
+                DrawCube(pt, (10.f * 3) / divCount);
             }
-
             mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
-            for (auto& pt : river)
+            for (int i = 0; i < river.GetMesh().size(); ++i)
             {
-                DrawCube(pt, 0.5);
+                glm::vec3 forward;
+                if (i == 0)
+                    forward = glm::normalize(river.GetMesh()[i + 1] - river.GetMesh()[i]);
+                else// if (i == river.GetMesh().size() - 1)
+                    forward = glm::normalize(river.GetMesh()[i] - river.GetMesh()[i - 1]);
+                //else
+                    //forward = glm::normalize(river.GetMesh()[i + 1] - river.GetMesh()[i - 1]);
+                DrawRiver(river.GetMesh()[i], { 5, 0.4, 9 }, forward, river.GetNormals()[i]);
             }
 
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
 
-            //if (p == SelectedPatch)
-            //    mTriangleShaderProg.SetVec3("uniform_Color", selectedColor);
-            //else
-            //    mTriangleShaderProg.SetVec3("uniform_Color", patchColor);
-            //
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
 
             mLineShaderProg.Use(); 
-            DrawLines(LineMesh(river));
+            //DrawLines(LineMesh(river));
             mLineShaderProg.Unuse();
         }
         
     }
+    void Renderer::DrawRiver(glm::vec3 pos, glm::vec3 scale, glm::vec3 forward, glm::vec3 normal)
+    {   
+        glm::vec3 right = glm::normalize(glm::cross(normal, forward));
+        glm::vec3 up = glm::normalize(glm::cross(forward, right));
+        glm::mat4 rotation = glm::mat4(1.0f);
+        rotation[0] = glm::vec4(right, 0.0f);
+        rotation[1] = glm::vec4(up, 0.0f);
+        rotation[2] = glm::vec4(forward, 0.0f);
+        rotation[3] = glm::vec4(0, 0, 0, 1.0f);
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+        model *= rotation;
+        model = glm::scale(model, scale);
 
+        glBindVertexArray(mVAO);
+
+        mSimpleShaderProg.SetMat4("uniform_Model", model);
+
+        // Draw cube
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
+    }
     void Renderer::DrawCube(glm::vec3 pos, float scale)
     {
         glBindVertexArray(mVAO);
@@ -152,7 +180,6 @@ namespace mat300_terrain {
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
-
     }
     void Renderer::DrawTriangles(const std::vector<glm::vec3>& triangles)
     {

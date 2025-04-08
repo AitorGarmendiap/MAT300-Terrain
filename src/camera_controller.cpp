@@ -76,7 +76,7 @@ namespace mat300_terrain {
             cam.mForward = glm::vec3(glm::vec4(cam.mForward, 0) * glm::rotate(glm::radians(15.0f) * 0.01f * cursorDelta.x, glm::dvec3(0, 1, 0)));
         }
         // Select Patch or Control Point
-        if (io.MouseDown[0])
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS || (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && io.MouseDown[0]))
         {
             SelectPatch(cursorPos.x, cursorPos.y);
         }
