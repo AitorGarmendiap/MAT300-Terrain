@@ -4,14 +4,13 @@
 
 namespace mat300_terrain
 {
-	void River::Create(int width, int height, int divCount)
+	void River::Create(int width, int height)
 	{
         if (!mRiverMesh.empty())
             mRiverMesh.clear();
 
         mWidth = width;
         mHeight = height;
-        mDiv = divCount;
         if (mRiverCtrlPts.empty())
         {
             mRiverCtrlPts.push_back({ 0, 0, 0 });
@@ -24,9 +23,9 @@ namespace mat300_terrain
         mRiverNormals.resize(mRiverMesh.size());
 	}
 
-	void River::CreateMesh(const std::vector<Patch>& patches)
+	void River::UpdateMesh(const std::vector<Patch>& patches, int divCount)
 	{
-        glm::vec2 patchSize = { mWidth / mDiv, mHeight / mDiv };
+        glm::vec2 patchSize = { mWidth / divCount, mHeight / divCount };
         for (int i = 0; i < mRiverMesh.size(); i++)
         {
             Patch thisPatch;
@@ -49,7 +48,7 @@ namespace mat300_terrain
                     }
                 }
                 atX++;
-                if (atX == mDiv)
+                if (atX == divCount)
                 {
                     atZ++;
                     atX = 0;

@@ -9,14 +9,17 @@ namespace mat300_terrain
 	public:
 		River(){}
 		~River(){}
-		void Create(int width, int height, int divCount);
-		void CreateMesh(const std::vector<Patch>& patches);
+		void Create(int width, int height);
+		void UpdateMesh(const std::vector<Patch>& patches, int divCount);
 		std::vector<glm::vec3> GetMesh() const { return mRiverMesh; }
 		std::vector<glm::vec3> GetCtrlPts() const { return mRiverCtrlPts; }
 		std::vector<glm::vec3> GetNormals() const { return mRiverNormals; }
 		float GetDt() const { return mDt; }
 
 		void SetDt(float newDt) { mDt = newDt; }
+
+		glm::vec3 start{};
+		glm::vec3 end{};
 	private:
 		std::vector<glm::vec3> mRiverMesh, mRiverCtrlPts, mRiverNormals;
 		int mWidth = 0, mHeight = 0, mDiv = 0;
