@@ -4,28 +4,98 @@
 
 namespace mat300_terrain
 {
-	void River::Create(int width, int height, int divCount)
+	void River::Create(int width, int depth)
 	{
+        if (mRiverLine.size() > 1)
+        {
+            mRiverLine.clear();
+            mRiverNormals.clear();
+            mRiverMesh.clear();
+        }
+
         mWidth = width;
-        mHeight = height;
-        mDiv = divCount;
-		mRiverCtrlPts.push_back({ 0, 0, 0 });
-		mRiverCtrlPts.push_back({ width * 0.5, 0, height * 0.25 });
-		mRiverCtrlPts.push_back({ width, 0, height * 0.5 });
-		mRiverCtrlPts.push_back({ width, 0, height });
-		mRiverMesh = CalculateBezierCurve(mRiverCtrlPts);
+        mDepth = depth;
+
+        std::vector<glm::vec3> tmpCtrlPts;
+        for (int i = 0; i < mRiverCtrlPts.size(); i++)
+            tmpCtrlPts.push_back({ mRiverCtrlPts[i].x, 0, mRiverCtrlPts[i].z });
+
+        mRiverLine = CalculateBezierCurve(tmpCtrlPts, mDt);
+        mRiverNormals = CalculateDerivativeBezierCurve(tmpCtrlPts, mDt);
 	}
 
-	void River::CreateMesh(const std::vector<Patch>& patches)
+	void River::UpdateMesh(const std::vector<Patch>& patches, int divCount)
 	{
-        glm::vec2 patchSize = { mWidth / mDiv, mHeight / mDiv };
-        for (int i = 0; i < mRiverMesh.size(); i++)
+        std::vector<glm::vec3> left, right;
+        for (int i = 0; i < mRiverLine.size(); i++)
+        {
+            left.push_back(mRiverLine[i] - glm::normalize(mRiverNormals[i]) * static_cast<float>(mThickness));
+            right.push_back(mRiverLine[i] + glm::normalize(mRiverNormals[i]) * static_cast<float>(mThickness));
+        }
+
+        ProjectLine(patches, divCount, left);
+        ProjectLine(patches, divCount, right);
+
+        for (int i = 0; i < mRiverLine.size() - 1; i++)
+        {
+            glm::vec3 p00{}, p01{}, p10{}, p11{};
+            for (float t = 0; t < 1.f; t += 0.2f)
+            {
+                p00 = glm::mix(left[i], right[i], t);
+                p10 = glm::mix(left[i], right[i], t + 0.2f);
+                p01 = glm::mix(left[i + 1], right[i + 1], t);
+                p11 = glm::mix(left[i + 1], right[i + 1], t + 0.2f);
+
+                mRiverMesh.push_back(p00);
+                mRiverMesh.push_back(p10);
+                mRiverMesh.push_back(p11);
+
+                mRiverMesh.push_back(p00);
+                mRiverMesh.push_back(p11);
+                mRiverMesh.push_back(p01);
+            }
+        }
+    }
+
+    void River::Recalculate(const std::vector<Patch>& patches, int divCount)
+    {
+        if (mRiverLine.size() > 1)
+        {
+            mRiverLine.clear();
+            mRiverNormals.clear();
+            mRiverMesh.clear();
+        }
+
+        std::vector<glm::vec3> tmpCtrlPts;
+        for (int i = 0; i < mRiverCtrlPts.size(); i++)
+            tmpCtrlPts.push_back({ mRiverCtrlPts[i].x, 0, mRiverCtrlPts[i].z });
+
+        mRiverLine = CalculateBezierCurve(tmpCtrlPts, mDt);
+        mRiverNormals = CalculateDerivativeBezierCurve(tmpCtrlPts, mDt);
+
+        UpdateMesh(patches, divCount);
+    }
+
+    void River::Remove()
+    {
+        start = false;
+        end = false;
+        mRiverCtrlPts.clear();
+        mRiverMesh.clear();
+        mRiverNormals.clear();
+    }
+
+    void River::ProjectLine(const std::vector<Patch>& patches, int divCount, std::vector<glm::vec3>& line)
+    {
+        std::vector<glm::vec3> res;
+        glm::vec2 patchSize = { mWidth / divCount, mDepth / divCount };
+        for (int i = 0; i < line.size() - 1; i++)
         {
             Patch thisPatch;
-            glm::vec3 pt = mRiverMesh[i];
+            glm::vec3 pt = line[i];
             glm::vec3 min, max;
             int atX = 0, atZ = 0;
-            
+
             // Select the patch that the point of the rivers' mesh is
             for (auto& patch : patches)
             {
@@ -41,7 +111,7 @@ namespace mat300_terrain
                     }
                 }
                 atX++;
-                if (atX == mDiv)
+                if (atX == divCount)
                 {
                     atZ++;
                     atX = 0;
@@ -49,20 +119,24 @@ namespace mat300_terrain
             }
 
             // Compute the new point using the Bezier patch and the position of the point as DT
+            // dt = point position / size of the patch; where the point position is between [0, size of the patch]
+            glm::vec3 dU = glm::vec3{ 0.0f };
+            glm::vec3 dV = glm::vec3{ 0.0f };
+            float localU = (pt.z - (atZ * patchSize.y)) / patchSize.y;
+            float localV = (pt.x - (atX * patchSize.x)) / patchSize.x;
             glm::vec3 newPoint = { 0, 0, 0 };
-            for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 4; k++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    // dt = point position / size of the patch; where the point position is between [0, size of the patch]
-                    float Bu = Bernstein(i, (pt.z - (atZ * patchSize.y)) / patchSize.y);
-                    float Bv = Bernstein(j, (pt.x - (atX * patchSize.x)) / patchSize.x);
+                    float Bu = Bernstein(k, localU);
+                    float Bv = Bernstein(j, localV);
 
-                    newPoint += thisPatch.controlPoints[i][j] * Bv * Bu;
+                    newPoint += thisPatch.controlPoints[k][j] * Bv * Bu;
                 }
             }
 
-            mRiverMesh[i] = newPoint;
+            line[i] = newPoint;
         }
-	}
+    }
 }

@@ -5,6 +5,7 @@ namespace mat300_terrain {
 	glm::vec3 GetMeshPointAt(float u, float v, glm::vec3 controlPoints[4][4]);
 
 	const int binomialCoeffs[4] = { 1,3,3,1 }; //precomputed binomial coeffs for bernstein will always be the same
+	const int binomialCoeffs2[3] = { 1, 2, 1 };
 
 
 	void CalculateBezierMesh(Patch& patch)
@@ -30,16 +31,33 @@ namespace mat300_terrain {
 		patch.mesh = mesh;
 	}
 
-	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints)
+	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
 	{
 		std::vector<glm::vec3> res;
-		for (float t = 0.f; t < 1.f; t += 0.01f)
+		res.reserve(ceil(1 / dt) + 1);
+		for (float t = 0.f; t < 1.f; t += dt)
 		{
 			glm::vec3 out_pts = { 0, 0, 0 };
 			for (int i = 0; i < ctrlPoints.size(); i++)
 				out_pts += ctrlPoints[i] * Bernstein(i, t);
 			res.push_back(out_pts);
 		}
+		return res;
+	}
+
+	std::vector<glm::vec3> CalculateDerivativeBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
+	{
+		std::vector<glm::vec3> res;
+		const glm::vec3 up = { 0, 1, 0 };
+		res.reserve(ceil(1 / dt) + 1);
+		for (float t = 0.f; t < 1.f; t += dt)
+		{
+			glm::vec3 out_pts = { 0, 0, 0 };
+			for (int i = 0; i < ctrlPoints.size(); i++)
+				out_pts += ctrlPoints[i] * dBernstein(i, t);
+			res.push_back(glm::cross(out_pts, up));
+		}
+
 		return res;
 	}
 
@@ -66,5 +84,21 @@ namespace mat300_terrain {
 
 		//calculate bernstein with precomputed binomial coeffs
 		return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+	}
+
+	float Bernstein2(int i, float t)
+	{
+		int n = 2;
+		return binomialCoeffs2[i] * pow(1 - t, n - i) * pow(t, i);
+	}
+
+	float dBernstein(int i, float t)
+	{
+		if (i == 0)
+			return -3 * Bernstein2(0, t);
+		else if (i == 3)
+			return 3 * Bernstein2(2, t);
+		else
+			return 3 * (Bernstein2(i - 1, t) - Bernstein2(i, t));
 	}
 }

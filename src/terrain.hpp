@@ -18,7 +18,7 @@ namespace mat300_terrain {
         void Recalculate(int patch, int controlPoint, glm::vec3 prevPos);
         void MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY,  bool positiveDiff);
         std::vector<Patch>& GetPatches();
-        River GetRiver() { return mRiver; }
+        River mRiver;
 
         int mWidth = 0;
         int mHeight = 0;
@@ -31,7 +31,6 @@ namespace mat300_terrain {
         bool updateDetails = false;
         int prevDivCount = 0;
         Texture* mInput = nullptr;
-        River mRiver;
     };
 
 }

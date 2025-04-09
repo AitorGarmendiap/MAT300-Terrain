@@ -27,9 +27,6 @@ namespace mat300_terrain {
         mPatches.clear();
         mPatches.reserve(mDivCount * mDivCount);
 
-        // Init the river. PLEASE DELETE THIS ONCE THE CREATION IN DEMO IS DONE
-        mRiver.Create(mWidth, mHeight, mDivCount);
-
         // Init the control points with the heights of the height map
         float patchWidth = (float)mWidth / (float)mDivCount;
         float patchHeight = (float)mHeight / (float)mDivCount;
@@ -67,9 +64,6 @@ namespace mat300_terrain {
         {
             CalculateBezierMesh(patch);
         }
-
-        // Init the river mesh. PLEASE DELETE THIS ONCE THE CREATION IN DEMO IS DONE
-        mRiver.CreateMesh(mPatches);
     }
 
     std::vector<Patch>& Terrain::GetPatches()
@@ -119,6 +113,12 @@ namespace mat300_terrain {
                 // calculate bezier
                 CalculateBezierMesh(patch);
             }
+        }
+        // update river thickness
+        if (mRiver.mThickness != mRiver.oldThickness)
+        {
+            mRiver.oldThickness = mRiver.mThickness;
+            mRiver.Recalculate(mPatches, mDivCount);
         }
     }
 
@@ -522,6 +522,8 @@ namespace mat300_terrain {
         {
             CalculateBezierMesh(patch);
         }
+
+        mRiver.Recalculate(mPatches, mDivCount);
     }
     void Terrain::MoveControlPointY(int patch, int controlPointY, int controlPointX, float deltaY, float reffY, bool positiveDiff)
     {
