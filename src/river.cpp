@@ -38,13 +38,22 @@ namespace mat300_terrain
 
         for (int i = 0; i < mRiverLine.size() - 1; i++)
         {
-            mRiverMesh.push_back(left[i]);
-            mRiverMesh.push_back(right[i]);
-            mRiverMesh.push_back(right[i + 1]);
+            glm::vec3 p00{}, p01{}, p10{}, p11{};
+            for (float t = 0; t < 1.f; t += 0.2f)
+            {
+                p00 = glm::mix(left[i], right[i], t);
+                p10 = glm::mix(left[i], right[i], t + 0.2f);
+                p01 = glm::mix(left[i + 1], right[i + 1], t);
+                p11 = glm::mix(left[i + 1], right[i + 1], t + 0.2f);
 
-            mRiverMesh.push_back(left[i]);
-            mRiverMesh.push_back(right[i + 1]);
-            mRiverMesh.push_back(left[i + 1]);
+                mRiverMesh.push_back(p00);
+                mRiverMesh.push_back(p10);
+                mRiverMesh.push_back(p11);
+
+                mRiverMesh.push_back(p00);
+                mRiverMesh.push_back(p11);
+                mRiverMesh.push_back(p01);
+            }
         }
     }
 
