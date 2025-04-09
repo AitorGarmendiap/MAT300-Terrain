@@ -56,16 +56,12 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const std::vector<glm::vec3>& river, const std::vector<glm::vec3>& ctrlPts)
+    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const River& river, int divCount)
     {
         mSimpleShaderProg.Use();
 
         mSimpleShaderProg.SetMat4("uniform_View", cam.GetView());
         mSimpleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-
-        mSimpleShaderProg.SetVec3("lightPos", glm::vec3(5.0f, 5.0f, 5.0f));
-        // mSimpleShaderProg.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f)); // White light
-        mSimpleShaderProg.SetVec3("viewPos", cam.GetPosition());
 
         mSimpleShaderProg.Unuse();
 
@@ -73,70 +69,108 @@ namespace mat300_terrain {
 
         mTriangleShaderProg.SetMat4("uniform_View", cam.GetView());
         mTriangleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0));
+        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0)); // TODO use actual res
 
         mTriangleShaderProg.Unuse();
 
-        //for (const auto& patch : patches)
+        mLineShaderProg.Use();
+        mLineShaderProg.SetMat4("uniform_View", cam.GetView());
+        mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
+        mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
+        mLineShaderProg.Unuse();
+
         for (int p = 0; p < patches.size(); ++p)
         {
             const Patch& patch = patches[p];
 
             mSimpleShaderProg.Use();
+
+            // draw patches and control points
             for (int i = 0; i < 4; ++i)
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    float scale = 0.5;
+                    float scale = (10.f * 2) / divCount;
+                    const auto& pt = patch.controlPoints[i][j];
                     // borders
                     if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
                     {
-                        scale = 1.5;
                         mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
+                        DrawCube(pt, scale);
                     }
-                    else
+                    else if (p == SelectedPatch)
+                    {
                         mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
-
-                    const auto& pt = patch.controlPoints[i][j];
-                    // bigger control points for selected patch
-                    if (p == SelectedPatch)
-                        scale = 1.5;
-                    DrawCube(pt, scale);
+                        DrawCube(pt, scale);
+                    }
+                    else if (drawControlPoints) // smaller control points if not selected patch
+                    {                      
+                        scale = 10.f / divCount;
+                        mSimpleShaderProg.SetVec3("uniform_Color", patchColor / 2.f);
+                        DrawCube(pt, scale);
+                    }
                 }
             }
 
-            for (auto& pt : ctrlPts)
+            // draw river and control points
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 0 });
+            for (auto& pt : river.mRiverCtrlPts)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
-                DrawCube(pt, 1);
+                DrawCube(pt, (10.f * 3) / divCount);
             }
-
-            for (auto& pt : river)
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0.2, 0.7, 0.8 });
+            for (int i = 0; i < river.GetMesh().size(); ++i)
             {
-                mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
-                DrawCube(pt, 0.5);
+                float distance;
+                glm::vec3 forward;
+                if (i == 0)
+                {
+                    distance = glm::distance(river.GetMesh()[i], river.GetMesh()[i + 1]);
+                    forward = glm::normalize(river.GetMesh()[i + 1] - river.GetMesh()[i]);
+                }
+                else
+                {
+                    distance = glm::distance(river.GetMesh()[i - 1], river.GetMesh()[i]);
+                    forward = glm::normalize(river.GetMesh()[i] - river.GetMesh()[i - 1]);
+                }
+                DrawRiver(river.GetMesh()[i], { 5, 0.4, ceil(distance) }, forward, river.GetNormals()[i]);
             }
 
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
-            //if (p == SelectedPatch)
-            //    mSimpleShaderProg.SetVec3("uniform_Color", selectedColor);
-            //else
-            //    mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
 
-            mLineShaderProg.Use();
-            mLineShaderProg.SetMat4("uniform_View", cam.GetView());
-            mLineShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-            mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
-            DrawLines(LineMesh(river));
+            mLineShaderProg.Use(); 
+            //DrawLines(LineMesh(river));
             mLineShaderProg.Unuse();
         }
         
     }
+    void Renderer::DrawRiver(glm::vec3 pos, glm::vec3 scale, glm::vec3 forward, glm::vec3 normal)
+    {   
+        glm::vec3 right = glm::normalize(glm::cross(normal, forward));
+        glm::vec3 up = glm::normalize(glm::cross(forward, right));
+        glm::mat4 rotation = glm::mat4(1.0f);
+        rotation[0] = glm::vec4(right, 0.0f);
+        rotation[1] = glm::vec4(up, 0.0f);
+        rotation[2] = glm::vec4(forward, 0.0f);
+        rotation[3] = glm::vec4(0, 0, 0, 1.0f);
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+        model *= rotation;
+        model = glm::scale(model, scale);
 
+        glBindVertexArray(mVAO);
+
+        mSimpleShaderProg.SetMat4("uniform_Model", model);
+
+        // Draw cube
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
+    }
     void Renderer::DrawCube(glm::vec3 pos, float scale)
     {
         glBindVertexArray(mVAO);
@@ -151,7 +185,6 @@ namespace mat300_terrain {
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
-
     }
     void Renderer::DrawTriangles(const std::vector<glm::vec3>& triangles)
     {
@@ -160,7 +193,10 @@ namespace mat300_terrain {
 
         ReCreateTriangleArray(triangles);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (wireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glBindVertexArray(mVAOtr);
 
