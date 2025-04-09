@@ -74,4 +74,13 @@ namespace mat300_terrain
             mRiverNormals[i] = glm::normalize(glm::cross(dU, dV));
         }
 	}
+
+    void River::Remove()
+    {
+        start = false;
+        end = false;
+        mRiverCtrlPts.clear();
+        mRiverMesh.clear();
+        mRiverNormals.clear();
+    }
 }

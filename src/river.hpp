@@ -13,12 +13,14 @@ namespace mat300_terrain
 		void UpdateMesh(const std::vector<Patch>& patches, int divCount);
 		std::vector<glm::vec3> GetMesh() const { return mRiverMesh; }
 		std::vector<glm::vec3> GetNormals() const { return mRiverNormals; }
+		void Remove();
 		float GetDt() const { return mDt; }
 
 		void SetDt(float newDt) { mDt = newDt; }
 
 		bool start = false;
 		bool end = false;
+		int selectedCtrlPt = -1;
 		std::vector<glm::vec3> mRiverCtrlPts;
 	private:
 		std::vector<glm::vec3> mRiverMesh, mRiverNormals;

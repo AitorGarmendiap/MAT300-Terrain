@@ -76,14 +76,22 @@ namespace mat300_terrain {
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
 
+        // patch guizmo
         if (!mTerrain.GetPatches().empty() && mRenderer.SelectedPatch >= 0 && mRenderer.SelectedPoint >= 0)
         {
-            glm::vec3 pos = mCamera.GetPosition() + glm::vec3{0, 0, -5};
             int i = mRenderer.SelectedPoint / 4, j = mRenderer.SelectedPoint % 4;
             glm::vec3 pointPrevPos = mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j];
 
-            if (Guizmo(&mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection()))
+            if (Guizmo(&mTerrain.GetPatches()[mRenderer.SelectedPatch].controlPoints[i][j], mCamera.GetView(), mCamera.GetProjection(), true))
                 mTerrain.Recalculate(mRenderer.SelectedPatch, mRenderer.SelectedPoint, pointPrevPos);
+        }
+        // river guizmo
+        if (mTerrain.mRiver.selectedCtrlPt >= 0)
+        {
+            glm::vec3 pointPrevPos = mTerrain.mRiver.mRiverCtrlPts[mTerrain.mRiver.selectedCtrlPt];
+
+            if (Guizmo(&mTerrain.mRiver.mRiverCtrlPts[mTerrain.mRiver.selectedCtrlPt], mCamera.GetView(), mCamera.GetProjection(), false))
+                mTerrain.mRiver.UpdateMesh(mTerrain.GetPatches(), mTerrain.mDivCount);
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });
@@ -104,6 +112,8 @@ namespace mat300_terrain {
                         std::string scene = scenePath + file;
                         if (ImGui::Selectable(file.c_str(), currentScene == scene))
                         {
+                            // remove river
+                            mTerrain.mRiver.Remove();
                             // Load new scene
                             currentScene = scene;
                             mScene.LoadDataFromFile(scene.c_str());
@@ -125,6 +135,14 @@ namespace mat300_terrain {
                 ImGui::Checkbox("Draw control points", &mRenderer.drawControlPoints);
                 ImGui::TreePop();
             }
+            if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Text("Move Camera: WASD QE");
+                ImGui::Text("Rotate Camera: RIGHT CLICK");
+                ImGui::Text("Select Patch: CTRL + LEFT CLICK");
+                ImGui::Text("Select River: SHIFT + LEFT CLICK");
+                ImGui::TreePop();
+            }
         }
         ImGui::End();
 
@@ -132,11 +150,13 @@ namespace mat300_terrain {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    bool App::Guizmo(glm::vec3* position, const glm::mat4& v, const glm::mat4& p)
+    bool App::Guizmo(glm::vec3* position, const glm::mat4& v, const glm::mat4& p, bool onlyY)
     {
+        ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+        if (onlyY) op = ImGuizmo::TRANSLATE_Y;
         auto m2w = glm::translate(glm::mat4(1.f), *position);
         ImGuizmo::SetRect(0, 0, WIDTH, HEIGHT);
-        if (ImGuizmo::Manipulate(&v[0][0], &p[0][0], ImGuizmo::TRANSLATE_Y, ImGuizmo::WORLD, &m2w[0][0], NULL, NULL)) {
+        if (ImGuizmo::Manipulate(&v[0][0], &p[0][0], op, ImGuizmo::WORLD, &m2w[0][0], NULL, NULL)) {
             float matrixTranslation[3], matrixRotation[3], matrixScale[3];
             ImGuizmo::DecomposeMatrixToComponents(&m2w[0][0], matrixTranslation, matrixRotation, matrixScale);
             *position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };
@@ -147,17 +167,31 @@ namespace mat300_terrain {
 
     void App::SelectRiver(float mouseX, float mouseY)
     {
+        // convert screen coordinate to world
+        glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, HEIGHT - mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
+        glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
+
         // select control point
         if (mTerrain.mRiver.start && mTerrain.mRiver.end)
         {
-
+            for (int i = 0; i < mTerrain.mRiver.mRiverCtrlPts.size(); ++i)
+            {
+                glm::vec3 dist = mCamera.GetPosition() - mTerrain.mRiver.mRiverCtrlPts[i];
+                float proj = glm::dot(rayMouse, dist);
+                float dist2 = glm::dot(dist, dist) - 5.f * 5.f;
+                float discriminant = proj * proj - dist2;
+                // check intersection
+                if (discriminant >= 0)
+                {
+                    mRenderer.SelectedPoint = -1;
+                    mTerrain.mRiver.selectedCtrlPt = i;
+                    return;
+                }
+            }
+            mTerrain.mRiver.selectedCtrlPt = -1;
         }
         else
         {
-            // convert screen coordinate to world
-            glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, HEIGHT - mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
-            glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
-
             // select patch
             const std::vector<Patch>& patches = mTerrain.GetPatches();
             int closestPatch = -1;
@@ -176,6 +210,7 @@ namespace mat300_terrain {
                 }
             }
 
+            if (closestPatch < 0) return;
             glm::vec3 pos = (patches[closestPatch].controlPoints[0][0] + patches[closestPatch].controlPoints[3][3]) / 2.f;
             if (!mTerrain.mRiver.start)
             {
@@ -187,8 +222,8 @@ namespace mat300_terrain {
                 mTerrain.mRiver.end = true;
                 glm::vec3 start = mTerrain.mRiver.mRiverCtrlPts.front();
                 glm::vec3 dir = pos - start;
-                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.25f });
-                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.75f });
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.3f });
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.7f });
                 mTerrain.mRiver.mRiverCtrlPts.push_back({ pos });
                 mTerrain.mRiver.Create(mTerrain.mWidth, mTerrain.mHeight);
                 mTerrain.mRiver.UpdateMesh(patches, mTerrain.mDivCount);
@@ -209,6 +244,7 @@ namespace mat300_terrain {
             int closestPoint = PointIntersection(mCamera.GetPosition(), rayMouse, patches[mRenderer.SelectedPatch]);
             if (closestPoint >= 0)
             {
+                mTerrain.mRiver.selectedCtrlPt = -1;
                 mRenderer.SelectedPoint = closestPoint;
                 return;
             }

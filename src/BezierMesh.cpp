@@ -34,6 +34,7 @@ namespace mat300_terrain {
 	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
 	{
 		std::vector<glm::vec3> res;
+		res.reserve(ceil(1 / dt) + 1);
 		for (float t = 0.f; t < 1.f; t += dt)
 		{
 			glm::vec3 out_pts = { 0, 0, 0 };
