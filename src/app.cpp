@@ -91,7 +91,7 @@ namespace mat300_terrain {
             glm::vec3 pointPrevPos = mTerrain.mRiver.mRiverCtrlPts[mTerrain.mRiver.selectedCtrlPt];
 
             if (Guizmo(&mTerrain.mRiver.mRiverCtrlPts[mTerrain.mRiver.selectedCtrlPt], mCamera.GetView(), mCamera.GetProjection(), false))
-                mTerrain.mRiver.UpdateMesh(mTerrain.GetPatches(), mTerrain.mDivCount);
+                mTerrain.mRiver.Recalculate(mTerrain.GetPatches(), mTerrain.mDivCount);
         }
 
         ImGui::SetNextWindowPos({ 0, 0 });

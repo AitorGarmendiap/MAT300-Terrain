@@ -11,6 +11,7 @@ namespace mat300_terrain
 		~River(){}
 		void Create(int width, int depth);
 		void UpdateMesh(const std::vector<Patch>& patches, int divCount);
+		void Recalculate(const std::vector<Patch>& patches, int divCount);
 		std::vector<glm::vec3> GetMesh() const { return mRiverMesh; }
 		std::vector<glm::vec3> GetNormals() const { return mRiverNormals; }
 		void Remove();
@@ -19,12 +20,10 @@ namespace mat300_terrain
 		bool end = false;
 		int selectedCtrlPt = -1;
 		std::vector<glm::vec3> mRiverCtrlPts;
-		std::vector<glm::vec3> mRiverCtrlPtsLeft;
-		std::vector<glm::vec3> mRiverCtrlPtsRight;
 	private:
 
 		void ProjectLine(const std::vector<Patch>& patches, int divCount, std::vector<glm::vec3>& line);
-		std::vector<glm::vec3> mRiverLineLeft, mRiverLineRight, mRiverMesh, mRiverNormals;
+		std::vector<glm::vec3> mRiverLine, mRiverMesh, mRiverNormals;
 		int mWidth = 0, mDepth = 0, mDiv = 0;
 		float mThickness = 10.f, mDt = 0.01f;
 	};

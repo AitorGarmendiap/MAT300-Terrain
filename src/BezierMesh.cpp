@@ -45,6 +45,22 @@ namespace mat300_terrain {
 		return res;
 	}
 
+	std::vector<glm::vec3> CalculateDerivativeBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
+	{
+		std::vector<glm::vec3> res;
+		const glm::vec3 up = { 0, 1, 0 };
+		res.reserve(ceil(1 / dt) + 1);
+		for (float t = 0.f; t < 1.f; t += dt)
+		{
+			glm::vec3 out_pts = { 0, 0, 0 };
+			for (int i = 0; i < ctrlPoints.size(); i++)
+				out_pts += ctrlPoints[i] * dBernstein(i, t);
+			res.push_back(glm::cross(out_pts, up));
+		}
+
+		return res;
+	}
+
 	glm::vec3 GetMeshPointAt(float u, float v, glm::vec3 controlPoints[4][4])
 	{
 		glm::vec3 newPoint(0.0f, 0.0f, 0.0f);
