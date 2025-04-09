@@ -118,7 +118,7 @@ namespace mat300_terrain {
             {
                 DrawCube(pt, (10.f * 3) / divCount);
             }
-            mSimpleShaderProg.SetVec3("uniform_Color", { 0.2, 0.7, 0.8 });
+            /*mSimpleShaderProg.SetVec3("uniform_Color", { 0.2, 0.7, 0.8 });
             for (int i = 0; i < river.GetMesh().size(); ++i)
             {
                 float distance;
@@ -134,18 +134,16 @@ namespace mat300_terrain {
                     forward = glm::normalize(river.GetMesh()[i] - river.GetMesh()[i - 1]);
                 }
                 DrawRiver(river.GetMesh()[i], { 5, 0.4, ceil(distance) }, forward, river.GetNormals()[i]);
-            }
+            }*/
 
             mSimpleShaderProg.Unuse();
 
             mTriangleShaderProg.Use();
-
+            mTriangleShaderProg.SetVec4("uniform_color", { 0.2, 0.7, 0.8, 0.f });
+            DrawTriangles(river.GetMesh());
+            mTriangleShaderProg.SetVec4("uniform_color", { 0.f, 0.f, 0.f, 1.f });
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
-
-            mLineShaderProg.Use(); 
-            //DrawLines(LineMesh(river));
-            mLineShaderProg.Unuse();
         }
         
     }

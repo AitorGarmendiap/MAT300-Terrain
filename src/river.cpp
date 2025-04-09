@@ -4,28 +4,77 @@
 
 namespace mat300_terrain
 {
-	void River::Create(int width, int height)
+	void River::Create(int width, int depth)
 	{
-        if (mRiverMesh.size() > 1)
-            mRiverMesh.clear();
+        if (mRiverLineLeft.size() > 1 && mRiverLineRight.size() > 1)
+        {
+            mRiverLineLeft.clear();
+            mRiverLineRight.clear();
+        }
 
         mWidth = width;
-        mHeight = height;
-        
-		mRiverMesh = CalculateBezierCurve(mRiverCtrlPts, mDt);
-        mRiverNormals.resize(mRiverMesh.size());
+        mDepth = depth;
+
+        for (int i = 0; i < mRiverCtrlPts.size() - 1; ++i)
+        {
+            const glm::vec3 up = glm::vec3(0, 1, 0);
+            glm::vec3 right, left;
+            glm::vec3 tanget = glm::normalize(mRiverCtrlPts[i + 1] - mRiverCtrlPts[i]);
+            right = glm::normalize(glm::cross(tanget, up)) * mThickness;
+            left = -right;
+
+            mRiverCtrlPtsLeft.push_back(mRiverCtrlPts[i] + left);
+            mRiverCtrlPtsRight.push_back(mRiverCtrlPts[i] + right);
+        }
+
+        const glm::vec3 up = glm::vec3(0, 1, 0);
+        glm::vec3 right, left;
+        glm::vec3 tanget = -glm::normalize(mRiverCtrlPts[2] - mRiverCtrlPts[3]);
+        right = glm::normalize(glm::cross(tanget, up)) * mThickness;
+        left = -right;
+
+        mRiverLineLeft = CalculateBezierCurve(mRiverCtrlPtsLeft, mDt);
+        mRiverLineRight = CalculateBezierCurve(mRiverCtrlPtsRight, mDt);
+        //mRiverNormals.resize(mRiverLine.size());
 	}
 
 	void River::UpdateMesh(const std::vector<Patch>& patches, int divCount)
 	{
-        glm::vec2 patchSize = { mWidth / divCount, mHeight / divCount };
-        for (int i = 0; i < mRiverMesh.size(); i++)
+        ProjectLine(patches, divCount, mRiverLineLeft);
+        ProjectLine(patches, divCount, mRiverLineRight);
+
+        for (int i = 0; i < mRiverLineLeft.size() - 1; i++)
+        {
+            mRiverMesh.push_back(mRiverLineLeft[i]);
+            mRiverMesh.push_back(mRiverLineRight[i]);
+            mRiverMesh.push_back(mRiverLineRight[i + 1]);
+
+            mRiverMesh.push_back(mRiverLineLeft[i]);
+            mRiverMesh.push_back(mRiverLineRight[i + 1]);
+            mRiverMesh.push_back(mRiverLineLeft[i + 1]);
+        }
+    }
+
+    void River::Remove()
+    {
+        start = false;
+        end = false;
+        mRiverCtrlPts.clear();
+        mRiverMesh.clear();
+        mRiverNormals.clear();
+    }
+
+    void River::ProjectLine(const std::vector<Patch>& patches, int divCount, std::vector<glm::vec3>& line)
+    {
+        std::vector<glm::vec3> res;
+        glm::vec2 patchSize = { mWidth / divCount, mDepth / divCount };
+        for (int i = 0; i < line.size() - 1; i++)
         {
             Patch thisPatch;
-            glm::vec3 pt = mRiverMesh[i];
+            glm::vec3 pt = line[i];
             glm::vec3 min, max;
             int atX = 0, atZ = 0;
-            
+
             // Select the patch that the point of the rivers' mesh is
             for (auto& patch : patches)
             {
@@ -58,29 +107,20 @@ namespace mat300_terrain
             for (int k = 0; k < 4; k++)
             {
                 for (int j = 0; j < 4; j++)
-                {           
+                {
                     float Bu = Bernstein(k, localU);
                     float Bv = Bernstein(j, localV);
-                    float dBu = dBernstein(k, localU);
-                    float dBv = dBernstein(j, localV);
+                    /*float dBu = dBernstein(k, localU);
+                    float dBv = dBernstein(j, localV);*/
 
                     newPoint += thisPatch.controlPoints[k][j] * Bv * Bu;
-                    dU += thisPatch.controlPoints[k][j] * Bv * dBu;
-                    dV += thisPatch.controlPoints[k][j] * dBv * Bu;
+                    /*dU += thisPatch.controlPoints[k][j] * Bv * dBu;
+                    dV += thisPatch.controlPoints[k][j] * dBv * Bu;*/
                 }
             }
 
-            mRiverMesh[i] = newPoint;
-            mRiverNormals[i] = glm::normalize(glm::cross(dU, dV));
+            line[i] = newPoint;
+            /*mRiverNormals[i] = glm::normalize(glm::cross(dU, dV));*/
         }
-	}
-
-    void River::Remove()
-    {
-        start = false;
-        end = false;
-        mRiverCtrlPts.clear();
-        mRiverMesh.clear();
-        mRiverNormals.clear();
     }
 }
