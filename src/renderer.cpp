@@ -114,20 +114,18 @@ namespace mat300_terrain {
 
             // draw river and control points
             mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 0 });
-            for (auto& pt : river.GetCtrlPts())
+            for (auto& pt : river.mRiverCtrlPts)
             {
                 DrawCube(pt, (10.f * 3) / divCount);
             }
-            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 1 });
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0.2, 0.7, 0.8 });
             for (int i = 0; i < river.GetMesh().size(); ++i)
             {
                 glm::vec3 forward;
                 if (i == 0)
                     forward = glm::normalize(river.GetMesh()[i + 1] - river.GetMesh()[i]);
-                else// if (i == river.GetMesh().size() - 1)
+                else
                     forward = glm::normalize(river.GetMesh()[i] - river.GetMesh()[i - 1]);
-                //else
-                    //forward = glm::normalize(river.GetMesh()[i + 1] - river.GetMesh()[i - 1]);
                 DrawRiver(river.GetMesh()[i], { 5, 0.4, 9 }, forward, river.GetNormals()[i]);
             }
 

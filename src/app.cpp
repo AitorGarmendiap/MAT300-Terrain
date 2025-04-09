@@ -15,7 +15,7 @@
 
 namespace mat300_terrain {
 
-    App::App() : mCamController([this](float x, float y) { this->SelectPatch(x, y); })
+    App::App() : mCamController([this](float x, float y) { this->SelectPatch(x, y); }, [this](float x, float y) { this->SelectRiver(x, y); })
     {
         CreateImgui();
         // get all scene names  
@@ -47,7 +47,7 @@ namespace mat300_terrain {
 
             mTerrain.Update(mCamera.mTransform.translation, mCamera.mFar);
 
-            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.GetRiver(), mTerrain.mDivCount);
+            mRenderer.Update(mCamera, mTerrain.GetPatches(), mTerrain.mRiver, mTerrain.mDivCount);
 
             UpdateImgui(dt);
 
@@ -143,6 +143,57 @@ namespace mat300_terrain {
             return true;
         }
         return false;
+    }
+
+    void App::SelectRiver(float mouseX, float mouseY)
+    {
+        // select control point
+        if (mTerrain.mRiver.start && mTerrain.mRiver.end)
+        {
+
+        }
+        else
+        {
+            // convert screen coordinate to world
+            glm::vec3 worldPos = glm::unProject(glm::vec3(mouseX, HEIGHT - mouseY, 1.0), mCamera.GetView(), mCamera.GetProjection(), glm::vec4(0, 0, WIDTH, HEIGHT));
+            glm::vec3 rayMouse = glm::normalize(worldPos - mCamera.GetPosition());
+
+            // select patch
+            const std::vector<Patch>& patches = mTerrain.GetPatches();
+            int closestPatch = -1;
+            float distance = 0;
+            for (int i = 0; i < patches.size(); ++i)
+            {
+                if (PatchIntersection(mCamera.GetPosition(), rayMouse, patches[i]))
+                {
+                    glm::vec3 center = (patches[i].controlPoints[0][0] + patches[i].controlPoints[3][3]) / 2.f;
+                    float newDistance = glm::distance(mCamera.GetPosition(), center);
+                    if (closestPatch < 0 || newDistance < distance)
+                    {
+                        closestPatch = i;
+                        distance = newDistance;
+                    }
+                }
+            }
+
+            glm::vec3 pos = (patches[closestPatch].controlPoints[0][0] + patches[closestPatch].controlPoints[3][3]) / 2.f;
+            if (!mTerrain.mRiver.start)
+            {
+                mTerrain.mRiver.start = true;
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ pos });
+            }
+            else // create river
+            {
+                mTerrain.mRiver.end = true;
+                glm::vec3 start = mTerrain.mRiver.mRiverCtrlPts.front();
+                glm::vec3 dir = pos - start;
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.25f });
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ start + dir * 0.75f });
+                mTerrain.mRiver.mRiverCtrlPts.push_back({ pos });
+                mTerrain.mRiver.Create(mTerrain.mWidth, mTerrain.mHeight);
+                mTerrain.mRiver.UpdateMesh(patches, mTerrain.mDivCount);
+            }
+        }
     }
 
     void App::SelectPatch(float mouseX, float mouseY)

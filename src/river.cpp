@@ -6,18 +6,11 @@ namespace mat300_terrain
 {
 	void River::Create(int width, int height)
 	{
-        if (!mRiverMesh.empty())
+        if (mRiverMesh.size() > 1)
             mRiverMesh.clear();
 
         mWidth = width;
         mHeight = height;
-        if (mRiverCtrlPts.empty())
-        {
-            mRiverCtrlPts.push_back({ 0, 0, 0 });
-            mRiverCtrlPts.push_back({ width * 0.5, 0, height * 0.25 });
-            mRiverCtrlPts.push_back({ width, 0, height * 0.5 });
-            mRiverCtrlPts.push_back({ width, 0, height });
-        }
         
 		mRiverMesh = CalculateBezierCurve(mRiverCtrlPts, mDt);
         mRiverNormals.resize(mRiverMesh.size());
