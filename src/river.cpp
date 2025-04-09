@@ -29,8 +29,8 @@ namespace mat300_terrain
         std::vector<glm::vec3> left, right;
         for (int i = 0; i < mRiverLine.size(); i++)
         {
-            left.push_back(mRiverLine[i] - glm::normalize(mRiverNormals[i]) * mThickness);
-            right.push_back(mRiverLine[i] + glm::normalize(mRiverNormals[i]) * mThickness);
+            left.push_back(mRiverLine[i] - glm::normalize(mRiverNormals[i]) * static_cast<float>(mThickness));
+            right.push_back(mRiverLine[i] + glm::normalize(mRiverNormals[i]) * static_cast<float>(mThickness));
         }
 
         ProjectLine(patches, divCount, left);

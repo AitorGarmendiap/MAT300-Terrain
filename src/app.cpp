@@ -113,6 +113,8 @@ namespace mat300_terrain {
                         if (ImGui::Selectable(file.c_str(), currentScene == scene))
                         {
                             // remove river
+                            mRenderer.SelectedPoint = -1;
+                            mTerrain.mRiver.selectedCtrlPt = -1;
                             mTerrain.mRiver.Remove();
                             // Load new scene
                             currentScene = scene;
@@ -133,6 +135,7 @@ namespace mat300_terrain {
             {
                 ImGui::Checkbox("Wireframe mode", &mRenderer.wireframe);
                 ImGui::Checkbox("Draw control points", &mRenderer.drawControlPoints);
+                ImGui::SliderInt("River thickness", &mTerrain.mRiver.mThickness, 1, 20);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))

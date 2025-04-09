@@ -114,6 +114,12 @@ namespace mat300_terrain {
                 CalculateBezierMesh(patch);
             }
         }
+        // update river thickness
+        if (mRiver.mThickness != mRiver.oldThickness)
+        {
+            mRiver.oldThickness = mRiver.mThickness;
+            mRiver.Recalculate(mPatches, mDivCount);
+        }
     }
 
     void Terrain::Recalculate(int patch, int controlPoint, glm::vec3 prevPos)
