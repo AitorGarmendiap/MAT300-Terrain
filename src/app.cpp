@@ -135,7 +135,12 @@ namespace mat300_terrain {
             {
                 ImGui::Checkbox("Wireframe mode", &mRenderer.wireframe);
                 ImGui::Checkbox("Draw control points", &mRenderer.drawControlPoints);
-                ImGui::SliderInt("River thickness", &mTerrain.mRiver.mThickness, 1, 20);
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNodeEx("River", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::SliderInt("Thickness", &mTerrain.mRiver.mThickness, 1, 20);
+                ImGui::SliderFloat("Dt", &mTerrain.mRiver.mDt, 0.002f, 0.1f);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))

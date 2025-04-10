@@ -42,6 +42,11 @@ namespace mat300_terrain {
 				out_pts += ctrlPoints[i] * Bernstein(i, t);
 			res.push_back(out_pts);
 		}
+		// add last point
+		glm::vec3 last = { 0, 0, 0 };
+		for (int i = 0; i < ctrlPoints.size(); i++)
+			last += ctrlPoints[i] * Bernstein(i, 1);
+		res.push_back(last);
 		return res;
 	}
 
@@ -57,7 +62,11 @@ namespace mat300_terrain {
 				out_pts += ctrlPoints[i] * dBernstein(i, t);
 			res.push_back(glm::cross(out_pts, up));
 		}
-
+		// add last point
+		glm::vec3 last = { 0, 0, 0 };
+		for (int i = 0; i < ctrlPoints.size(); i++)
+			last += ctrlPoints[i] * dBernstein(i, 1);
+		res.push_back(glm::cross(last, up));
 		return res;
 	}
 

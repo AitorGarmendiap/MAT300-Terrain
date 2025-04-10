@@ -6,7 +6,7 @@ namespace mat300_terrain
 {
 	void River::Create(int width, int depth)
 	{
-        if (mRiverLine.size() > 1)
+        if (!mRiverLine.empty())
         {
             mRiverLine.clear();
             mRiverNormals.clear();
@@ -36,15 +36,16 @@ namespace mat300_terrain
         ProjectLine(patches, divCount, left);
         ProjectLine(patches, divCount, right);
 
+        float dt = 1.f / mThickness;
+        glm::vec3 p00{}, p01{}, p10{}, p11{};
         for (int i = 0; i < mRiverLine.size() - 1; i++)
-        {
-            glm::vec3 p00{}, p01{}, p10{}, p11{};
-            for (float t = 0; t < 1.f; t += 0.2f)
+        {           
+            for (float t = 0; t < 1.f; t += dt)
             {
                 p00 = glm::mix(left[i], right[i], t);
-                p10 = glm::mix(left[i], right[i], t + 0.2f);
+                p10 = glm::mix(left[i], right[i], t + dt);
                 p01 = glm::mix(left[i + 1], right[i + 1], t);
-                p11 = glm::mix(left[i + 1], right[i + 1], t + 0.2f);
+                p11 = glm::mix(left[i + 1], right[i + 1], t + dt);
 
                 mRiverMesh.push_back(p00);
                 mRiverMesh.push_back(p10);
@@ -81,6 +82,7 @@ namespace mat300_terrain
         start = false;
         end = false;
         mRiverCtrlPts.clear();
+        mRiverLine.clear();
         mRiverMesh.clear();
         mRiverNormals.clear();
     }
@@ -89,7 +91,7 @@ namespace mat300_terrain
     {
         std::vector<glm::vec3> res;
         glm::vec2 patchSize = { mWidth / divCount, mDepth / divCount };
-        for (int i = 0; i < line.size() - 1; i++)
+        for (int i = 0; i < line.size(); i++)
         {
             Patch thisPatch;
             glm::vec3 pt = line[i];
@@ -135,7 +137,7 @@ namespace mat300_terrain
                     newPoint += thisPatch.controlPoints[k][j] * Bv * Bu;
                 }
             }
-
+            newPoint.y += 5;
             line[i] = newPoint;
         }
     }

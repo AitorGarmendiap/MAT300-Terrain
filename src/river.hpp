@@ -20,12 +20,12 @@ namespace mat300_terrain
 		bool end = false;
 		int selectedCtrlPt = -1;
 		int mThickness = 10.f, oldThickness = mThickness;
+		float mDt = 0.01f, oldDt = mDt;
 		std::vector<glm::vec3> mRiverCtrlPts;
 	private:
 
 		void ProjectLine(const std::vector<Patch>& patches, int divCount, std::vector<glm::vec3>& line);
 		std::vector<glm::vec3> mRiverLine, mRiverMesh, mRiverNormals;
-		float mDt = 0.01f;
 		int mWidth = 0, mDepth = 0, mDiv = 0;
 	};
 }

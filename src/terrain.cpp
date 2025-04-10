@@ -114,10 +114,15 @@ namespace mat300_terrain {
                 CalculateBezierMesh(patch);
             }
         }
-        // update river thickness
+        // update river thickness and dt
         if (mRiver.mThickness != mRiver.oldThickness)
         {
             mRiver.oldThickness = mRiver.mThickness;
+            mRiver.Recalculate(mPatches, mDivCount);
+        }
+        if (mRiver.mDt != mRiver.oldDt)
+        {
+            mRiver.oldDt = mRiver.mDt;
             mRiver.Recalculate(mPatches, mDivCount);
         }
     }
