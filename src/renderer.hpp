@@ -4,6 +4,7 @@
 #include "shader.hpp"
 #include "shader_program.hpp"
 #include "river.hpp"
+#include "terrain.hpp"
 
 #include <glad/glad.h>  // OpenGl library
 
@@ -27,7 +28,7 @@ namespace mat300_terrain {
         void DrawTriangles(const std::vector<glm::vec3>& triangles);
         void DrawLines(const std::vector<glm::vec3>& lines);
 
-        void Update(const Camera& cam, const std::vector<Patch>& patches, const River& river, int divCount);
+        void Update(const Camera& cam, const Terrain& river);
         std::vector<glm::vec3> TriangulateMesh(const Patch& patch);
         std::vector<glm::vec3> LineMesh(const std::vector<glm::vec3>& line);
 
@@ -37,6 +38,7 @@ namespace mat300_terrain {
         bool drawControlPoints = true;
 
         glm::vec3 patchColor = { 0.2, 0.6, 0.5 };
+        glm::vec3 patchColor2 = { 0.8, 0.38, 0.44 };
         glm::vec3 borderColor = { 1.0, 1.0, 0.0 };
         glm::vec3 selectedColor = { 0.0, 1.0, 0.0 };
         

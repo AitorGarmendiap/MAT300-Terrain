@@ -27,7 +27,6 @@ namespace mat300_terrain {
         bool sharpEdges = true;
         bool detailedPatch = false;
 
-    private:
         std::vector<Patch> mPatches;
         bool updateDetails = false;
         int prevDivCount = 0;

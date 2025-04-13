@@ -56,7 +56,7 @@ namespace mat300_terrain {
         glFrontFace(GL_CCW);
     }
 
-    void Renderer::Update(const Camera& cam, const std::vector<Patch>& patches, const River& river, int divCount)
+    void Renderer::Update(const Camera& cam, const Terrain& terrain)
     {
         mSimpleShaderProg.Use();
 
@@ -69,7 +69,7 @@ namespace mat300_terrain {
 
         mTriangleShaderProg.SetMat4("uniform_View", cam.GetView());
         mTriangleShaderProg.SetMat4("uniform_Proj", cam.GetProjection());
-        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(512.0)); // TODO use actual res
+        mTriangleShaderProg.SetVec2("uniform_heightMapRes", glm::vec2(terrain.mWidth, terrain.mHeight)); // TODO use actual res
 
         mTriangleShaderProg.Unuse();
 
@@ -79,9 +79,9 @@ namespace mat300_terrain {
         mLineShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
         mLineShaderProg.Unuse();
 
-        for (int p = 0; p < patches.size(); ++p)
+        for (int p = 0; p < terrain.mPatches.size(); ++p)
         {
-            const Patch& patch = patches[p];
+            const Patch& patch = terrain.mPatches[p];
 
             mSimpleShaderProg.Use();
 
@@ -90,33 +90,39 @@ namespace mat300_terrain {
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    float scale = (10.f * 2) / divCount;
+                    float scale = (10.f * 2) / terrain.mDivCount;
                     const auto& pt = patch.controlPoints[i][j];
                     // borders
                     if (i == 0 && j == 0 || i == 0 && j == 3 || i == 3 && j == 0 || i == 3 && j == 3)
                     {
                         mSimpleShaderProg.SetVec3("uniform_Color", borderColor);
-                        DrawCube(pt, scale);
                     }
                     else if (p == SelectedPatch)
                     {
-                        mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
-                        DrawCube(pt, scale);
+                        if (i == 0 && j == 1 || i == 0 && j == 2 || i == 1 && j == 0 || i == 2 && j == 0 ||
+                            i == 3 && j == 1 || i == 3 && j == 2 || i == 1 && j == 3 || i == 2 && j == 3)
+                        {
+                            mSimpleShaderProg.SetVec3("uniform_Color", patchColor2);
+                        }
+                        else
+                        {
+                            mSimpleShaderProg.SetVec3("uniform_Color", patchColor);
+                        }
                     }
                     else if (drawControlPoints) // smaller control points if not selected patch
                     {                      
-                        scale = 10.f / divCount;
+                        scale = 10.f / terrain.mDivCount;
                         mSimpleShaderProg.SetVec3("uniform_Color", patchColor / 2.f);
-                        DrawCube(pt, scale);
                     }
+                    DrawCube(pt, scale);
                 }
             }
 
             // draw river and control points
-            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0, 0 });
-            for (auto& pt : river.mRiverCtrlPts)
+            mSimpleShaderProg.SetVec3("uniform_Color", { 0, 0.5, 1 });
+            for (auto& pt : terrain.mRiver.mRiverCtrlPts)
             {
-                DrawCube(pt, (10.f * 3) / divCount);
+                DrawCube(pt, (10.f * 3) / terrain.mDivCount);
             }
             /*mSimpleShaderProg.SetVec3("uniform_Color", { 0.2, 0.7, 0.8 });
             for (int i = 0; i < river.GetMesh().size(); ++i)
@@ -140,7 +146,7 @@ namespace mat300_terrain {
 
             mTriangleShaderProg.Use();
             mTriangleShaderProg.SetVec4("uniform_color", { 0.2, 0.7, 0.8, 0.f });
-            DrawTriangles(river.GetMesh());
+            DrawTriangles(terrain.mRiver.GetMesh());
             mTriangleShaderProg.SetVec4("uniform_color", { 0.f, 0.f, 0.f, 1.f });
             DrawTriangles(TriangulateMesh(patch));
             mTriangleShaderProg.Unuse();
