@@ -19,8 +19,9 @@ namespace mat300_terrain {
         moveSpeed = std::max(0.1f, moveSpeed);     // Prevent negative or zero move speed
     }
 
-    void CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam)
+    bool CameraControler::HandleInput(float dt, GLFWwindow* window, Camera& cam)
     {
+        bool movedCamera = false;
         glfwSetScrollCallback(window, ScrollCallback);
 
         // Axial movement respect to the camera and world up
@@ -69,6 +70,7 @@ namespace mat300_terrain {
 
         if (io.MouseDown[1])
         {
+            movedCamera = true;
             glm::dvec3 rightVec = glm::normalize(glm::cross(cam.mForward, { 0, 1, 0 }));
 
             glm::dvec2 cursorDelta = cursorPos - prevPos;
@@ -90,6 +92,7 @@ namespace mat300_terrain {
         }
         
         prevPos = cursorPos;
+        return movedCamera;
     }
 
 }

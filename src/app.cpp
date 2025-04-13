@@ -39,7 +39,8 @@ namespace mat300_terrain {
 
             mWindow.Clear();
 
-            mCamController.HandleInput(dt, mWindow.GetGLFWWindow(), mCamera);
+            if (mCamController.HandleInput(dt, mWindow.GetGLFWWindow(), mCamera))
+                mTerrain.Recalculate(mCamera.mTransform.translation, mCamera.mFar);
 
             mCamera.SetPrespectiveProjection(mScene.FOVy, mWindow.GetAspectRatio(), mScene.nearPlane, mScene.farPlane);
 

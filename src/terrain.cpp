@@ -73,33 +73,46 @@ namespace mat300_terrain {
 
     void Terrain::Update(const glm::vec3& camPos, float far)
     {
+        if (mDivCount != prevDivCount)
+        {
+            prevDivCount = mDivCount;
+            Create(mDivCount);
+        }
+        if (detailedPatch != oldDetail)
+        {
+            oldDetail = detailedPatch;
+            Recalculate(camPos, far);
+        }
+        // update river thickness and dt
+        if (mRiver.mThickness != mRiver.oldThickness)
+        {
+            mRiver.oldThickness = mRiver.mThickness;
+            mRiver.Recalculate(mPatches, mDivCount);
+        }
+        if (mRiver.mDt != mRiver.oldDt)
+        {
+            mRiver.oldDt = mRiver.mDt;
+            mRiver.Recalculate(mPatches, mDivCount);
+        }
+    }
+
+    void Terrain::Recalculate(const glm::vec3& camPos, float far)
+    {      
         //if not camera
         if (!detailedPatch)
-        {
-            if (mDivCount != prevDivCount)
+        {          
+            for (auto& patch : mPatches)
             {
-                prevDivCount = mDivCount;
-                Create(mDivCount);
-            }
-            if (updateDetails)
-            {
-                updateDetails = detailedPatch;
-                for (auto& patch : mPatches)
-                {
-                    patch.t = 0.1f;
-                    patch.mesh.clear();
+                patch.t = 0.1f;
+                patch.mesh.clear();
 
-                    // calculate bezier
-                    CalculateBezierMesh(patch);
-                }
+                // calculate bezier
+                CalculateBezierMesh(patch);
             }
         }
         //if camera
         else
         {
-            if(!updateDetails)
-                updateDetails = detailedPatch;
-
             // go over all patches calculate dt by distance
             for (auto& patch : mPatches)
             {
@@ -114,17 +127,7 @@ namespace mat300_terrain {
                 CalculateBezierMesh(patch);
             }
         }
-        // update river thickness and dt
-        if (mRiver.mThickness != mRiver.oldThickness)
-        {
-            mRiver.oldThickness = mRiver.mThickness;
-            mRiver.Recalculate(mPatches, mDivCount);
-        }
-        if (mRiver.mDt != mRiver.oldDt)
-        {
-            mRiver.oldDt = mRiver.mDt;
-            mRiver.Recalculate(mPatches, mDivCount);
-        }
+        
     }
 
     void Terrain::Recalculate(int patch, int controlPoint, glm::vec3 prevPos)
