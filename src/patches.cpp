@@ -15,7 +15,7 @@ namespace mat300_terrain
 		normal = glm::normalize(glm::cross(v1, v2));
 	}
 
-	glm::vec3 Patch::GetCenterPoint()
+	glm::vec3 Patch::GetCenterPoint() const
 	{ 
 		return (controlPoints[0][0] + controlPoints[3][0] + controlPoints[0][3] + controlPoints[3][3]) / 4.0f;
 	}
@@ -23,9 +23,9 @@ namespace mat300_terrain
 	int Patch::GetStepCount() const
 	{
 		float diff = (1.f / t) - static_cast<int>(1.f / t);
-		if (diff > 0.5f)
+		if (diff >= 0.5f)
 			return static_cast<int>(ceilf(1.f / t));
-		else if (diff < 0.5f)
+		else // if (diff < 0.5f)
 			return static_cast<int>(floorf(1.f / t));
 	}
 }

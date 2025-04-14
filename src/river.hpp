@@ -2,7 +2,7 @@
 #include "patches.hpp"
 namespace mat300_terrain
 {
-	class Patch;
+	struct Patch;
 
 	class River
 	{
@@ -19,7 +19,7 @@ namespace mat300_terrain
 		bool start = false;
 		bool end = false;
 		int selectedCtrlPt = -1;
-		int mThickness = 10.f, oldThickness = mThickness;
+		int mThickness = 10, oldThickness = mThickness;
 		float mDt = 0.01f, oldDt = mDt;
 		std::vector<glm::vec3> mRiverCtrlPts;
 	private:

@@ -42,8 +42,8 @@ namespace mat300_terrain {
                     {
                         // Retrieve the height: (actual pos * amount of dist for next ctrl point) + (patch size depending on mDivCount * "which patch")
                         // "which patch" = if there is 2 mDivCounts, there are 4 patches in total where (0, 0) is the first one, (1, 0) the second one etc.
-                        int texX = (x * steps) + (patchWidth * j) >= mWidth ? mWidth - 1 : (x * steps) + (patchWidth * j);
-                        int texY = (y * steps) + (patchHeight * i) >= mHeight ? mHeight - 1 : (y * steps) + (patchHeight * i);
+                        int texX = (x * steps) + (patchWidth * j) >= mWidth ? mWidth - 1 : static_cast<int>((x * steps) + (patchWidth * j));
+                        int texY = (y * steps) + (patchHeight * i) >= mHeight ? mHeight - 1 : static_cast<int>((y * steps) + (patchHeight * i));
                         float heightVal = static_cast<float>(*(mInput->data() + (texX + texY * mWidth)));
 
                         // Transform the value from [0, 255] to [0, 1]

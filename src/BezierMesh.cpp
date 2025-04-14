@@ -12,13 +12,13 @@ namespace mat300_terrain {
 	{
 		std::vector<glm::vec3> mesh;
 
-        float steps = patch.GetStepCount();
+        int steps = patch.GetStepCount();
 
-		for (unsigned i = 0; i <= steps; i++)
+		for (int i = 0; i <= steps; i++)
 		{
 			float tu = i * patch.t;
 
-			for (unsigned j = 0; j <= steps; j++)
+			for (int j = 0; j <= steps; j++)
 			{
 				float tv = j * patch.t;
 
@@ -34,7 +34,7 @@ namespace mat300_terrain {
 	std::vector<glm::vec3> CalculateBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
 	{
 		std::vector<glm::vec3> res;
-		res.reserve(ceil(1 / dt) + 1);
+		res.reserve(static_cast<size_t>(ceil(1.0f / dt) + 1.0f));
 		for (float t = 0.f; t < 1.f; t += dt)
 		{
 			glm::vec3 out_pts = { 0, 0, 0 };
@@ -43,7 +43,7 @@ namespace mat300_terrain {
 			res.push_back(out_pts);
 		}
 		// add last point
-		glm::vec3 last = { 0, 0, 0 };
+		glm::vec3 last = { 0.0f, 0.0f, 0.0f };
 		for (int i = 0; i < ctrlPoints.size(); i++)
 			last += ctrlPoints[i] * Bernstein(i, 1);
 		res.push_back(last);
@@ -53,8 +53,8 @@ namespace mat300_terrain {
 	std::vector<glm::vec3> CalculateDerivativeBezierCurve(const std::vector<glm::vec3>& ctrlPoints, float dt)
 	{
 		std::vector<glm::vec3> res;
-		const glm::vec3 up = { 0, 1, 0 };
-		res.reserve(ceil(1 / dt) + 1);
+		const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
+		res.reserve(static_cast<size_t>(ceil(1.0f / dt) + 1.0f));
 		for (float t = 0.f; t < 1.f; t += dt)
 		{
 			glm::vec3 out_pts = { 0, 0, 0 };
@@ -63,7 +63,7 @@ namespace mat300_terrain {
 			res.push_back(glm::cross(out_pts, up));
 		}
 		// add last point
-		glm::vec3 last = { 0, 0, 0 };
+		glm::vec3 last = { 0.0f, 0.0f, 0.0f };
 		for (int i = 0; i < ctrlPoints.size(); i++)
 			last += ctrlPoints[i] * dBernstein(i, 1);
 		res.push_back(glm::cross(last, up));
@@ -92,13 +92,13 @@ namespace mat300_terrain {
 		int n = 3;
 
 		//calculate bernstein with precomputed binomial coeffs
-		return binomialCoeffs[i] * pow(1 - t, n - i) * pow(t, i);
+		return static_cast<float>(binomialCoeffs[i] * pow(1.0f - t, n - i) * pow(t, i));
 	}
 
 	float Bernstein2(int i, float t)
 	{
 		int n = 2;
-		return binomialCoeffs2[i] * pow(1 - t, n - i) * pow(t, i);
+		return static_cast<float>(binomialCoeffs2[i] * pow(1.0f - t, n - i) * pow(t, i));
 	}
 
 	float dBernstein(int i, float t)

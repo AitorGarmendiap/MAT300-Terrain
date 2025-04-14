@@ -207,7 +207,7 @@ namespace mat300_terrain {
         mTriangleShaderProg.SetMat4("uniform_Model", glm::mat4(1.0));
 
         // Draw triangles
-        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(triangles.size()));
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -226,7 +226,7 @@ namespace mat300_terrain {
         glBindVertexArray(mVAOln);
 
         // Draw triangles
-        glDrawArrays(GL_LINES, 0, lines.size());
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lines.size()));
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

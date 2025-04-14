@@ -13,8 +13,8 @@ namespace mat300_terrain
 		unsigned char* data() const { return mData; }
 		void operator=(const Texture& text);
 	private:
-		int mWidth;
-		int mHeight;
-		unsigned char* mData;
+		int mWidth = 0;
+		int mHeight = 0;
+		unsigned char* mData = nullptr;
 	};
 }

@@ -82,13 +82,13 @@ namespace mat300_terrain {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS || (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && (io.MouseDown[0] && !selected)))
         {
             selected = true;
-            SelectPatch(cursorPos.x, cursorPos.y);
+            SelectPatch(static_cast<float>(cursorPos.x), static_cast<float>(cursorPos.y));
         }
         // Create river or select Control Point
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && (io.MouseDown[0] && !selected))
         {
             selected = true;
-            SelectRiver(cursorPos.x, cursorPos.y);
+            SelectRiver(static_cast<float>(cursorPos.x), static_cast<float>(cursorPos.y));
         }
         
         prevPos = cursorPos;
